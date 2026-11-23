@@ -19,7 +19,7 @@ const sessionClaimsSchema = z.object({
 export type SessionClaims = z.infer<typeof sessionClaimsSchema>;
 
 function getSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET;
   if (!secret || secret.length < 32) {
     throw new Error("JWT_SECRET must be set and at least 32 characters long.");
   }

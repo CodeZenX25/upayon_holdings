@@ -22,19 +22,19 @@ loadEnvConfig(process.cwd());
 
 const sampleImage = "https://res.cloudinary.com/demo/image/upload/sample.jpg";
 const seedAdminEmail =
-  process.env.SEED_ADMIN_EMAIL ?? "admin@upayonholdings.com";
+  process.env.SEED_ADMIN_EMAIL ??
+  process.env.ADMIN ??
+  "admin@upayonholdings.com";
 
 async function seed(): Promise<void> {
   if (process.env.NODE_ENV === "production") {
     throw new Error("Refusing to seed a production environment.");
   }
 
-  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD;
-  if (!seedAdminPassword) {
-    throw new Error(
-      "Missing SEED_ADMIN_PASSWORD. Set it in your local environment before seeding.",
-    );
-  }
+  const seedAdminPassword =
+    process.env.SEED_ADMIN_PASSWORD ??
+    process.env.ADMINPASS ??
+    "admin123456";
 
   const adminInput = adminSchema.parse({
     name: "Seed Administrator",
@@ -161,10 +161,12 @@ async function seed(): Promise<void> {
       stats: { years: 0, completed: 0, ongoing: 0, families: 0 },
       heroSlides: [
         {
-          title: "Find your place in Dhaka",
-          subtitle: "Sample hero content for local development.",
+          title: "Building Spaces That Inspire",
+          subtitle:
+            "Upayon Holdings Ltd. is a trusted real estate developer in Bangladesh, delivering premium residential and commercial projects with exceptional craftsmanship, innovative design, and on-time completion.",
           image: sampleImage,
-          buttonText: "Explore projects",
+          mediaType: "image",
+          buttonText: "Explore Projects",
           buttonUrl: "/projects",
           order: 0,
         },

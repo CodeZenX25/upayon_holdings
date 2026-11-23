@@ -20,6 +20,8 @@ export interface HeroSlide {
   title: string;
   subtitle: string;
   image: string;
+  videoUrl?: string;
+  mediaType?: "image" | "video";
   buttonText?: string;
   buttonUrl?: string;
   order: number;
@@ -59,6 +61,8 @@ const heroSlideSchema = new Schema<HeroSlide>(
     title: { type: String, required: true, trim: true },
     subtitle: { type: String, required: true, trim: true },
     image: { type: String, required: true, trim: true },
+    videoUrl: { type: String, trim: true },
+    mediaType: { type: String, enum: ["image", "video"], default: "image" },
     buttonText: { type: String, trim: true },
     buttonUrl: { type: String, trim: true },
     order: { type: Number, default: 0, validate: Number.isInteger },

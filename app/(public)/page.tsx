@@ -11,6 +11,8 @@ import { OwnershipModels } from "@/components/sections/ownership-models";
 import { Testimonial } from "@/components/sections/testimonial";
 import { blogPosts, galleryItems, projects } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
+import { connectToDatabase } from "@/lib/db";
+import { SiteSettingsModel, type HeroSlide } from "@/models";
 
 /** One full-width layer of the stacked scroll; `bg` is the section colour. */
 function Panel({ children, bg, first = false }: { children: ReactNode; bg: string; first?: boolean }) {
@@ -23,11 +25,22 @@ function Panel({ children, bg, first = false }: { children: ReactNode; bg: strin
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  let heroSlides: HeroSlide[] = [];
+  try {
+    await connectToDatabase();
+    const settings = await SiteSettingsModel.findOne({ singletonKey: "default" }).lean();
+    if (settings?.heroSlides && settings.heroSlides.length > 0) {
+      heroSlides = JSON.parse(JSON.stringify(settings.heroSlides));
+    }
+  } catch (error) {
+    console.error("Failed to load hero slides:", error);
+  }
+
   return (
     <ScrollStack>
       <Panel first bg="bg-navy-950">
-        <Hero />
+        <Hero slides={heroSlides} />
       </Panel>
       <Panel bg="bg-white">
         <AboutIntro />

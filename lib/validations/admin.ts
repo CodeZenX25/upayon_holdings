@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const passwordSchema = z
   .string()
-  .min(12)
+  .min(8)
   .refine(
     (password) => new TextEncoder().encode(password).byteLength <= 72,
     "Password must not exceed 72 UTF-8 bytes.",

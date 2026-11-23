@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm i *)",
+      "Bash(grep -E \"^\\(gsap|lenis\\)$\")",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(npx shadcn@latest add card input label --yes)",
+      "Bash(awk -F= '{ printf \"%s=%s\\\\n\", $1, \\($2==\"\"?\"<empty>\":\"<set, len \" length\\($2\\) \">\"\\) }' .env)",
+      "Bash(npm run *)",
+      "Bash(grep -nE \"^\\\\s*\\(h[1-6]|p|a|img|input|select|textarea|label|section|form|button|ul|li|figure|main|header|footer|nav|article|blockquote\\)\\([ ,:{.\\\\[]|$\\)\" app/legacy.css)",
+      "Bash(grep -noE \"^\\\\.\\(hidden|flex|grid|block|relative|absolute|container|group|card|shadow|rounded|border|text-[a-z]+|bg-[a-z]+\\)[ ,{:]\" app/legacy.css)",
+      "Bash(curl -s \"http://localhost:3124/admin/login?next=//evil.com\")",
+      "Bash(break)",
+      "Bash(node -e \"const m=require\\('./.next/routes-manifest.json'\\); console.log\\(Object.keys\\(m\\), Array.isArray\\(m.dataRoutes\\)\\)\")",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'next' } | Select-Object ProcessId, @{n='Cmd';e={$_.CommandLine.Substring\\(0, [Math]::Min\\(140, $_.CommandLine.Length\\)\\)}} | Format-Table -AutoSize -Wrap)",
+      "PowerShell(foreach \\($p in 27876, 29976, 23732, 13984\\) { try { Stop-Process -Id $p -Force -ErrorAction Stop; \"killed $p\" } catch { \"gone $p\" } })",
+      "PowerShell($q = \"C:\\\\Users\\\\RCG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\71b4d413b460aafe\\\\7ee69716-3f13-40b9-858c-111b1cdbc14d\\\\scratchpad\\\\qa\\\\app\"; cmd /c mklink /J \"$q\\\\node_modules\" \"C:\\\\Users\\\\Projects\\\\Upayon Holdings\\\\node_modules\")",
+      "Bash(npx next *)",
+      "Bash(node -e \"require\\('bcryptjs'\\).hash\\(require\\('crypto'\\).randomBytes\\(24\\).toString\\('hex'\\),12\\).then\\(console.log\\)\")",
+      "Bash(npx playwright *)",
+      "Bash(OUT=\"C:/Users/RCG/AppData/Local/Temp/claude/71b4d413b460aafe/7ee69716-3f13-40b9-858c-111b1cdbc14d/scratchpad/qa/shots\" node browser.mjs)",
+      "Bash(sort -k3 -t' ' -n)",
+      "Bash(curl -s -o /dev/null http://localhost:3127/)",
+      "Bash(BASE=http://localhost:3127 node reveal.mjs)",
+      "Bash(git checkout *)",
+      "Bash(curl -s -o /dev/null http://localhost:3130/)",
+      "Bash(OUT=\"C:/Users/RCG/AppData/Local/Temp/claude/71b4d413b460aafe/7ee69716-3f13-40b9-858c-111b1cdbc14d/scratchpad/qa/shots-logo\" node logo.mjs)"
+    ]
+  }
+}

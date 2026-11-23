@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Upayon Holdings Ltd
 
-## Getting Started
+Public portfolio website for a Dhaka-based real estate company offering
+land-share and flat-share opportunities.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 15 App Router and TypeScript
+- Tailwind CSS 4 and shadcn/ui
+- MongoDB with Mongoose
+- Zod request validation
+- Framer Motion and Cloudinary integrations
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Copy `.env.example` to `.env.local`.
+2. Set `MONGODB_URI` to a development database before testing contact form
+   submissions. The contact endpoint returns an error if it cannot persist a
+   lead.
+3. Run `npm install`, then `npm run dev`.
+4. Open `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use `npm run build` for a production build and `npm run lint` for ESLint.
 
-## Learn More
+## Public pages
 
-To learn more about Next.js, take a look at the following resources:
+- `/` — Homepage and project search
+- `/about` — Company overview
+- `/projects` — Filterable project listing
+- `/projects/[slug]` — Project details
+- `/gallery` — Filterable image gallery
+- `/blog` and `/blog/[slug]` — Editorial previews
+- `/contact` — Enquiry form, persisted as a lead through `POST /api/leads`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The current project and editorial entries in `lib/public-data.ts`, along with
+their images and project metrics, are illustrative preview content. Replace
+them with company-approved information and media before publishing. The
+website intentionally avoids inventing contact details or customer
+testimonials.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Never commit `.env` files. Keep local secrets in ignored environment files and
+provide only variable names in shared examples.

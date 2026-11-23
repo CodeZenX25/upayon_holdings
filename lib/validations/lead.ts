@@ -14,3 +14,8 @@ export const leadSchema = z.object({
 });
 
 export type LeadInput = z.infer<typeof leadSchema>;
+
+/** Shape accepted from the public contact/enquiry forms. Unknown keys are stripped. */
+export const publicLeadSchema = leadSchema.omit({ status: true, notes: true });
+
+export type PublicLeadInput = z.infer<typeof publicLeadSchema>;

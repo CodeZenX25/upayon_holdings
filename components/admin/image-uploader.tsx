@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export type ImageUploaderFolder = "projects" | "gallery" | "blog" | "testimonials";
+export type ImageUploaderFolder = "projects" | "gallery" | "blog" | "testimonials" | "banners";
 
 interface ImageUploaderProps {
   value?: string | string[];

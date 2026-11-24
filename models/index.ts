@@ -1,5 +1,7 @@
 export { AdminModel } from "./admin";
 export type { Admin, AdminDocument, AdminRole } from "./admin";
+export { BannerModel } from "./banner";
+export type { Banner, BannerDocument } from "./banner";
 export { BlogModel } from "./blog";
 export type { Blog, BlogDocument, BlogSeo } from "./blog";
 export { GalleryItemModel } from "./gallery-item";

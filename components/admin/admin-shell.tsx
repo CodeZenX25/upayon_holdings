@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Shield,
   UserCheck,
+  Film,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +41,11 @@ const navItems = [
     href: "/admin",
     icon: LayoutDashboard,
     exact: true,
+  },
+  {
+    title: "Banners",
+    href: "/admin/banners",
+    icon: Film,
   },
   {
     title: "Projects",

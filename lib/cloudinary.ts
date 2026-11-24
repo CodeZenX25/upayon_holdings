@@ -17,7 +17,7 @@ if (isConfigured) {
 
 export { cloudinary, isConfigured };
 
-export type CloudinaryFolder = "projects" | "gallery" | "blog" | "testimonials";
+export type CloudinaryFolder = "projects" | "gallery" | "blog" | "testimonials" | "banners";
 
 export interface UploadResult {
   url: string;

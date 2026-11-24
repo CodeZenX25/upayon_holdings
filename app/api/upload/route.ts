@@ -24,6 +24,7 @@ const VALID_FOLDERS: Set<CloudinaryFolder> = new Set([
   "gallery",
   "blog",
   "testimonials",
+  "banners",
 ]);
 
 export async function POST(request: NextRequest) {

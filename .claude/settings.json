@@ -25,7 +25,10 @@
       "Bash(BASE=http://localhost:3127 node reveal.mjs)",
       "Bash(git checkout *)",
       "Bash(curl -s -o /dev/null http://localhost:3130/)",
-      "Bash(OUT=\"C:/Users/RCG/AppData/Local/Temp/claude/71b4d413b460aafe/7ee69716-3f13-40b9-858c-111b1cdbc14d/scratchpad/qa/shots-logo\" node logo.mjs)"
+      "Bash(OUT=\"C:/Users/RCG/AppData/Local/Temp/claude/71b4d413b460aafe/7ee69716-3f13-40b9-858c-111b1cdbc14d/scratchpad/qa/shots-logo\" node logo.mjs)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000/api/admin/banners)",
+      "Bash(git add *)"
     ]
   }
 }

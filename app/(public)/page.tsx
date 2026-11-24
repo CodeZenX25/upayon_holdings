@@ -10,7 +10,8 @@ import { LatestProjects } from "@/components/sections/latest-projects";
 import { LocationEnquiry } from "@/components/sections/location-enquiry";
 import { OwnershipModels } from "@/components/sections/ownership-models";
 import { Testimonial } from "@/components/sections/testimonial";
-import { blogPosts, galleryItems, projects } from "@/lib/public-data";
+import { getProjects } from "@/lib/projects";
+import { blogPosts, galleryItems } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
 
 /** One full-width layer of the stacked scroll; `bg` is the section colour. */
@@ -25,6 +26,8 @@ function Panel({ children, bg, first = false }: { children: ReactNode; bg: strin
 }
 
 export default async function HomePage() {
+  const latestProjects = await getProjects(3);
+
   return (
     <>
       <BannerSection />
@@ -36,7 +39,7 @@ export default async function HomePage() {
         <DesignShowcase />
       </Panel>
       <Panel bg="bg-paper">
-        <LatestProjects projects={projects.slice(0, 3)} />
+        <LatestProjects projects={latestProjects} />
       </Panel>
       <Panel bg="bg-navy-900">
         <Features />

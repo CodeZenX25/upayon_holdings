@@ -31,6 +31,7 @@ interface ImageUploaderProps {
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 
@@ -99,15 +100,17 @@ export function ImageUploader({
     // Validation
     const validFiles: File[] = [];
     for (const file of files) {
-      if (file.size > MAX_FILE_SIZE) {
+      const isImage = ALLOWED_IMAGE_TYPES.includes(file.type.toLowerCase());
+      const isVideo = allowVideo && ALLOWED_VIDEO_TYPES.includes(file.type.toLowerCase());
+      const limit = isVideo ? MAX_VIDEO_SIZE : MAX_FILE_SIZE;
+
+      if (file.size > limit) {
+        const limitMb = limit / (1024 * 1024);
         toast.error(
-          `"${file.name}" exceeds 5MB (${(file.size / (1024 * 1024)).toFixed(1)}MB). Max 5MB allowed.`
+          `"${file.name}" exceeds ${limitMb}MB (${(file.size / (1024 * 1024)).toFixed(1)}MB). Max ${limitMb}MB allowed.`
         );
         continue;
       }
-
-      const isImage = ALLOWED_IMAGE_TYPES.includes(file.type.toLowerCase());
-      const isVideo = allowVideo && ALLOWED_VIDEO_TYPES.includes(file.type.toLowerCase());
 
       if (!isImage && !isVideo) {
         toast.error(

@@ -22,7 +22,6 @@ import {
   Trash2,
   Sparkles,
   LoaderCircle,
-  Image as ImageIcon,
 } from "lucide-react";
 import { ImageUploader } from "@/components/admin/image-uploader";
 
@@ -32,19 +31,31 @@ export interface ProjectData {
   slug: string;
   status: "ongoing" | "upcoming" | "completed";
   type: "land-share" | "flat-share";
+  category: "residential" | "commercial" | "mixed-use";
+  availability: "available" | "limited" | "sold-out";
   location: string;
   address: string;
   shortDescription: string;
   description: string;
   coverImage: string;
   images: string[];
+  videos: string[];
   landArea?: string;
+  projectArea?: string;
   floors?: number;
   totalUnits?: number;
+  unitsPerFloor?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  verandahs?: number;
+  lifts?: number;
+  parking?: number;
   flatSizes: string[];
   facing?: string;
   handoverDate?: string;
   features: Array<{ name: string; icon: string }>;
+  highlights: Array<{ title: string; text: string }>;
+  amenities: Record<AmenityGroup, string[]>;
   floorPlans: Array<{ title: string; image: string }>;
   mapEmbedUrl?: string;
   progress: number;
@@ -62,6 +73,92 @@ export interface ProjectData {
   };
 }
 
+type AmenityGroup = "interior" | "outdoor" | "utilities" | "other" | "nearby";
+
+const amenityGroups: { key: AmenityGroup; label: string; placeholder: string }[] = [
+  { key: "interior", label: "Interior features", placeholder: "e.g. False ceiling" },
+  { key: "outdoor", label: "Outdoor features", placeholder: "e.g. Rooftop garden" },
+  { key: "utilities", label: "Utilities", placeholder: "e.g. Generator backup" },
+  { key: "other", label: "Other features", placeholder: "e.g. Wheelchair accessible" },
+  { key: "nearby", label: "Nearby", placeholder: "e.g. Hospital" },
+];
+
+const emptyAmenities: Record<AmenityGroup, string[]> = {
+  interior: [],
+  outdoor: [],
+  utilities: [],
+  other: [],
+  nearby: [],
+};
+
+const countFields: { key: "bedrooms" | "bathrooms" | "verandahs" | "lifts" | "parking" | "unitsPerFloor"; label: string }[] = [
+  { key: "bedrooms", label: "Bedrooms (per unit)" },
+  { key: "bathrooms", label: "Bathrooms (per unit)" },
+  { key: "verandahs", label: "Verandahs (per unit)" },
+  { key: "unitsPerFloor", label: "Units per floor" },
+  { key: "lifts", label: "Lifts" },
+  { key: "parking", label: "Parking spaces" },
+];
+
+function ChipListInput({
+  values,
+  onChange,
+  placeholder,
+}: {
+  values: string[];
+  onChange: (values: string[]) => void;
+  placeholder: string;
+}) {
+  const [draft, setDraft] = React.useState("");
+  const add = () => {
+    const value = draft.trim();
+    if (!value || values.includes(value)) return;
+    onChange([...values, value]);
+    setDraft("");
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <Input
+          placeholder={placeholder}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              add();
+            }
+          }}
+        />
+        <Button type="button" variant="outline" onClick={add} className="shrink-0">
+          Add
+        </Button>
+      </div>
+      {values.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {values.map((value) => (
+            <span
+              key={value}
+              className="inline-flex items-center gap-1.5 rounded-md bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground"
+            >
+              {value}
+              <button
+                type="button"
+                aria-label={`Remove ${value}`}
+                onClick={() => onChange(values.filter((v) => v !== value))}
+                className="hover:text-destructive"
+              >
+                &times;
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -74,23 +171,23 @@ const defaultProject: ProjectData = {
   slug: "",
   status: "ongoing",
   type: "flat-share",
+  category: "residential",
+  availability: "available",
   location: "",
   address: "",
   shortDescription: "",
   description: "",
-  coverImage: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+  coverImage: "",
   images: [],
+  videos: [],
   landArea: "",
-  floors: 10,
-  totalUnits: 20,
-  flatSizes: ["1450 sqft"],
-  facing: "South-East",
+  projectArea: "",
+  flatSizes: [],
+  facing: "",
   handoverDate: "",
-  features: [
-    { name: "24/7 Security", icon: "ShieldCheck" },
-    { name: "High Speed Elevator", icon: "ChevronsUp" },
-    { name: "Full Generator Backup", icon: "Zap" },
-  ],
+  features: [],
+  highlights: [],
+  amenities: emptyAmenities,
   floorPlans: [],
   mapEmbedUrl: "",
   progress: 0,
@@ -126,6 +223,9 @@ export function ProjectDialog({
           ? new Date(project.handoverDate).toISOString().split("T")[0]
           : "",
         seo: { ...defaultProject.seo, ...project.seo },
+        amenities: { ...emptyAmenities, ...project.amenities },
+        videos: project.videos ?? [],
+        highlights: project.highlights ?? [],
       });
     } else {
       setFormData(defaultProject);
@@ -180,10 +280,33 @@ export function ProjectDialog({
         : "/api/admin/projects";
       const method = isEdit ? "PUT" : "POST";
 
+      const toCount = (value?: number) =>
+        value === undefined || Number.isNaN(value) ? undefined : Number(value);
+
       const payload = {
         ...formData,
         floors: formData.floors ? Number(formData.floors) : undefined,
         totalUnits: formData.totalUnits ? Number(formData.totalUnits) : undefined,
+        unitsPerFloor: toCount(formData.unitsPerFloor),
+        bedrooms: toCount(formData.bedrooms),
+        bathrooms: toCount(formData.bathrooms),
+        verandahs: toCount(formData.verandahs),
+        lifts: toCount(formData.lifts),
+        parking: toCount(formData.parking),
+        landArea: formData.landArea?.trim() || undefined,
+        projectArea: formData.projectArea?.trim() || undefined,
+        facing: formData.facing?.trim() || undefined,
+        mapEmbedUrl: formData.mapEmbedUrl?.trim() || undefined,
+        brochureUrl: formData.brochureUrl?.trim() || undefined,
+        features: formData.features
+          .map((f) => ({ name: f.name.trim(), icon: f.icon || "check" }))
+          .filter((f) => f.name),
+        highlights: formData.highlights
+          .map((h) => ({ title: h.title.trim(), text: h.text.trim() }))
+          .filter((h) => h.title && h.text),
+        floorPlans: formData.floorPlans
+          .map((p) => ({ title: p.title.trim(), image: p.image.trim() }))
+          .filter((p) => p.title && p.image),
         progress: Number(formData.progress || 0),
         order: Number(formData.order || 0),
         handoverDate: formData.handoverDate ? new Date(formData.handoverDate) : undefined,
@@ -234,10 +357,11 @@ export function ProjectDialog({
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-4 sm:grid-cols-7 w-full h-auto p-1 bg-muted/60">
+            <TabsList className="grid grid-cols-4 sm:grid-cols-8 w-full h-auto p-1 bg-muted/60">
               <TabsTrigger value="basic">Basic Info</TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="features">Features</TabsTrigger>
+              <TabsTrigger value="amenities">Amenities</TabsTrigger>
               <TabsTrigger value="floorplans">Floor Plans</TabsTrigger>
               <TabsTrigger value="progress">Progress</TabsTrigger>
               <TabsTrigger value="images">Images</TabsTrigger>
@@ -402,6 +526,73 @@ export function ProjectDialog({
             {/* TAB 2: DETAILS */}
             <TabsContent value="details" className="space-y-4 pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="category">Project Type</Label>
+                  <Select
+                    id="category"
+                    value={formData.category}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        category: e.target.value as ProjectData["category"],
+                      }))
+                    }
+                  >
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="mixed-use">Mixed-use</option>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="availability">Availability</Label>
+                  <Select
+                    id="availability"
+                    value={formData.availability}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        availability: e.target.value as ProjectData["availability"],
+                      }))
+                    }
+                  >
+                    <option value="available">Available</option>
+                    <option value="limited">Limited units</option>
+                    <option value="sold-out">Sold out</option>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="projectArea">Project / Unit Area</Label>
+                  <Input
+                    id="projectArea"
+                    placeholder="e.g. 1531 & 1462 sqft"
+                    value={formData.projectArea || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, projectArea: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {countFields.map(({ key, label }) => (
+                  <div key={key} className="space-y-1.5">
+                    <Label htmlFor={key}>{label}</Label>
+                    <Input
+                      id={key}
+                      type="number"
+                      min="0"
+                      placeholder="e.g. 3"
+                      value={formData[key] ?? ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [key]: e.target.value === "" ? undefined : parseInt(e.target.value, 10),
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+
                 <div className="space-y-1.5">
                   <Label htmlFor="landArea">Land Area</Label>
                   <Input
@@ -581,9 +772,9 @@ export function ProjectDialog({
             <TabsContent value="features" className="space-y-4 pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-bold text-navy-900">Amenities & Features</h4>
+                  <h4 className="text-sm font-bold text-navy-900">Key Features</h4>
                   <p className="text-xs text-muted-foreground">
-                    Add standard icons and descriptive names for key building features.
+                    Short bullet points shown in the &quot;Key features&quot; list on the project page.
                   </p>
                 </div>
                 <Button
@@ -593,7 +784,7 @@ export function ProjectDialog({
                   onClick={() =>
                     setFormData((prev) => ({
                       ...prev,
-                      features: [...prev.features, { name: "New Feature", icon: "Check" }],
+                      features: [...prev.features, { name: "", icon: "check" }],
                     }))
                   }
                   className="gap-1 text-xs"
@@ -609,25 +800,18 @@ export function ProjectDialog({
                     key={idx}
                     className="flex items-center gap-3 rounded-lg border border-border p-2.5 bg-card"
                   >
-                    <div className="w-1/3">
-                      <Input
-                        placeholder="Icon name (e.g. Shield, Zap, Car)"
-                        value={feat.icon}
-                        onChange={(e) => {
-                          const updated = [...formData.features];
-                          updated[idx].icon = e.target.value;
-                          setFormData((prev) => ({ ...prev, features: updated }));
-                        }}
-                      />
-                    </div>
                     <div className="flex-1">
                       <Input
-                        placeholder="Feature name (e.g. 24/7 Security)"
+                        placeholder="e.g. Two apartments per floor for privacy"
                         value={feat.name}
                         onChange={(e) => {
-                          const updated = [...formData.features];
-                          updated[idx].name = e.target.value;
-                          setFormData((prev) => ({ ...prev, features: updated }));
+                          const value = e.target.value;
+                          setFormData((prev) => ({
+                            ...prev,
+                            features: prev.features.map((f, i) =>
+                              i === idx ? { ...f, name: value } : f
+                            ),
+                          }));
                         }}
                       />
                     </div>
@@ -650,6 +834,100 @@ export function ProjectDialog({
               </div>
             </TabsContent>
 
+            <TabsContent value="amenities" className="space-y-6 pt-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-navy-900">Project Highlights</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Label and short explanation, e.g. &quot;Prime location&quot; — &quot;Close to schools and hospitals&quot;.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        highlights: [...prev.highlights, { title: "", text: "" }],
+                      }))
+                    }
+                    className="gap-1 text-xs"
+                  >
+                    <Plus className="size-3.5" />
+                    Add Highlight
+                  </Button>
+                </div>
+                {formData.highlights.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-col gap-2 rounded-lg border border-border p-2.5 bg-card sm:flex-row sm:items-start"
+                  >
+                    <Input
+                      className="sm:w-1/3"
+                      placeholder="Label (e.g. Prime location)"
+                      value={item.title}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => ({
+                          ...prev,
+                          highlights: prev.highlights.map((h, i) =>
+                            i === idx ? { ...h, title: value } : h
+                          ),
+                        }));
+                      }}
+                    />
+                    <Input
+                      className="flex-1"
+                      placeholder="Short explanation"
+                      value={item.text}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => ({
+                          ...prev,
+                          highlights: prev.highlights.map((h, i) =>
+                            i === idx ? { ...h, text: value } : h
+                          ),
+                        }));
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="Remove highlight"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          highlights: prev.highlights.filter((_, i) => i !== idx),
+                        }))
+                      }
+                      className="text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {amenityGroups.map(({ key, label, placeholder }) => (
+                <div key={key} className="space-y-2 border-t border-border pt-4">
+                  <Label>{label}</Label>
+                  <ChipListInput
+                    values={formData.amenities[key]}
+                    placeholder={placeholder}
+                    onChange={(values) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        amenities: { ...prev.amenities, [key]: values },
+                      }))
+                    }
+                  />
+                </div>
+              ))}
+            </TabsContent>
+
             {/* TAB 4: FLOOR PLANS */}
             <TabsContent value="floorplans" className="space-y-4 pt-4">
               <div className="flex items-center justify-between">
@@ -668,11 +946,7 @@ export function ProjectDialog({
                       ...prev,
                       floorPlans: [
                         ...prev.floorPlans,
-                        {
-                          title: "Type A - 1450 sqft",
-                          image:
-                            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-                        },
+                        { title: "", image: "" },
                       ],
                     }))
                   }
@@ -687,40 +961,33 @@ export function ProjectDialog({
                 {formData.floorPlans.map((fp, idx) => (
                   <div
                     key={idx}
-                    className="flex flex-col sm:flex-row gap-3 rounded-lg border border-border p-3 bg-card items-start sm:items-center"
+                    className="flex gap-3 rounded-lg border border-border p-3 bg-card items-start"
                   >
-                    <div className="size-16 rounded border border-border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-                      {fp.image ? (
-                        <img
-                          src={fp.image}
-                          alt={fp.title}
-                          className="size-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLElement).style.display = "none";
-                          }}
-                        />
-                      ) : (
-                        <ImageIcon className="size-6 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                    <div className="flex-1 space-y-3">
                       <Input
-                        placeholder="Plan title (e.g. 3-Bed Deluxe)"
+                        placeholder="Plan title (e.g. Type A — 1531 sqft)"
                         value={fp.title}
                         onChange={(e) => {
-                          const updated = [...formData.floorPlans];
-                          updated[idx].title = e.target.value;
-                          setFormData((prev) => ({ ...prev, floorPlans: updated }));
+                          const value = e.target.value;
+                          setFormData((prev) => ({
+                            ...prev,
+                            floorPlans: prev.floorPlans.map((p, i) =>
+                              i === idx ? { ...p, title: value } : p
+                            ),
+                          }));
                         }}
                       />
-                      <Input
-                        type="url"
-                        placeholder="Image URL"
+                      <ImageUploader
+                        folder="projects"
                         value={fp.image}
-                        onChange={(e) => {
-                          const updated = [...formData.floorPlans];
-                          updated[idx].image = e.target.value;
-                          setFormData((prev) => ({ ...prev, floorPlans: updated }));
+                        onChange={(val) => {
+                          const image = Array.isArray(val) ? val[0] ?? "" : val;
+                          setFormData((prev) => ({
+                            ...prev,
+                            floorPlans: prev.floorPlans.map((p, i) =>
+                              i === idx ? { ...p, image } : p
+                            ),
+                          }));
                         }}
                       />
                     </div>
@@ -866,19 +1133,43 @@ export function ProjectDialog({
                 folder="projects"
                 value={formData.coverImage}
                 onChange={(val) =>
-                  setFormData((prev) => ({ ...prev, coverImage: val as string }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    coverImage: Array.isArray(val) ? val[0] ?? "" : val,
+                  }))
                 }
               />
 
               <div className="border-t border-border pt-4">
                 <ImageUploader
-                  label="Additional Gallery Photos"
-                  description="Exterior, interior, and architectural captures with drag & drop reorder"
+                  label="Gallery Photos"
+                  description="Shown in the Gallery section of the project page. Upload exterior, interior and site photos; drag to reorder."
                   folder="projects"
                   multiple
                   value={formData.images}
                   onChange={(val) =>
-                    setFormData((prev) => ({ ...prev, images: val as string[] }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      images: Array.isArray(val) ? val : [val].filter(Boolean),
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <ImageUploader
+                  label="Project Videos"
+                  description="Walkthroughs or drone footage (MP4/WebM), uploaded to Cloudinary"
+                  folder="projects"
+                  multiple
+                  allowVideo
+                  maxFiles={10}
+                  value={formData.videos}
+                  onChange={(val) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      videos: Array.isArray(val) ? val : [val].filter(Boolean),
+                    }))
                   }
                 />
               </div>

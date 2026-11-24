@@ -6,6 +6,21 @@ import mongoose, {
 
 export type ProjectStatus = "ongoing" | "upcoming" | "completed";
 export type ProjectType = "land-share" | "flat-share";
+export type ProjectCategory = "residential" | "commercial" | "mixed-use";
+export type ProjectAvailability = "available" | "limited" | "sold-out";
+
+export interface ProjectHighlight {
+  title: string;
+  text: string;
+}
+
+export interface ProjectAmenities {
+  interior: string[];
+  outdoor: string[];
+  utilities: string[];
+  other: string[];
+  nearby: string[];
+}
 
 export interface ProjectFeature {
   name: string;
@@ -33,19 +48,31 @@ export interface Project {
   slug: string;
   status: ProjectStatus;
   type: ProjectType;
+  category: ProjectCategory;
+  availability: ProjectAvailability;
   location: string;
   address: string;
   shortDescription: string;
   description: string;
   coverImage: string;
   images: string[];
+  videos: string[];
   landArea?: string;
+  projectArea?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  verandahs?: number;
+  lifts?: number;
+  parking?: number;
+  unitsPerFloor?: number;
   floors?: number;
   totalUnits?: number;
   flatSizes: string[];
   facing?: string;
   handoverDate?: Date;
   features: ProjectFeature[];
+  highlights: ProjectHighlight[];
+  amenities: ProjectAmenities;
   floorPlans: ProjectFloorPlan[];
   mapEmbedUrl?: string;
   progress: number;
@@ -60,6 +87,25 @@ const projectFeatureSchema = new Schema<ProjectFeature>(
   {
     name: { type: String, required: true, trim: true },
     icon: { type: String, required: true, trim: true },
+  },
+  { _id: false },
+);
+
+const projectHighlightSchema = new Schema<ProjectHighlight>(
+  {
+    title: { type: String, required: true, trim: true },
+    text: { type: String, required: true, trim: true },
+  },
+  { _id: false },
+);
+
+const projectAmenitiesSchema = new Schema<ProjectAmenities>(
+  {
+    interior: { type: [String], default: [] },
+    outdoor: { type: [String], default: [] },
+    utilities: { type: [String], default: [] },
+    other: { type: [String], default: [] },
+    nearby: { type: [String], default: [] },
   },
   { _id: false },
 );
@@ -110,19 +156,39 @@ const projectSchema = new Schema<Project>(
       enum: ["land-share", "flat-share"],
       required: true,
     },
+    category: {
+      type: String,
+      enum: ["residential", "commercial", "mixed-use"],
+      default: "residential",
+    },
+    availability: {
+      type: String,
+      enum: ["available", "limited", "sold-out"],
+      default: "available",
+    },
     location: { type: String, required: true, trim: true },
     address: { type: String, required: true, trim: true },
     shortDescription: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     coverImage: { type: String, required: true, trim: true },
     images: { type: [String], default: [] },
+    videos: { type: [String], default: [] },
     landArea: { type: String, trim: true },
+    projectArea: { type: String, trim: true },
+    bedrooms: { type: Number, min: 0, validate: Number.isInteger },
+    bathrooms: { type: Number, min: 0, validate: Number.isInteger },
+    verandahs: { type: Number, min: 0, validate: Number.isInteger },
+    lifts: { type: Number, min: 0, validate: Number.isInteger },
+    parking: { type: Number, min: 0, validate: Number.isInteger },
+    unitsPerFloor: { type: Number, min: 0, validate: Number.isInteger },
     floors: { type: Number, min: 0, validate: Number.isInteger },
     totalUnits: { type: Number, min: 0, validate: Number.isInteger },
     flatSizes: { type: [String], default: [] },
     facing: { type: String, trim: true },
     handoverDate: { type: Date },
     features: { type: [projectFeatureSchema], default: [] },
+    highlights: { type: [projectHighlightSchema], default: [] },
+    amenities: { type: projectAmenitiesSchema, default: () => ({}) },
     floorPlans: { type: [projectFloorPlanSchema], default: [] },
     mapEmbedUrl: { type: String, trim: true },
     progress: {

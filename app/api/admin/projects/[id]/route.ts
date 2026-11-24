@@ -4,6 +4,7 @@ import { requirePermission } from "@/lib/auth/server";
 import { ProjectModel } from "@/models";
 import { projectSchema } from "@/lib/validations";
 import { deleteMultipleFromCloudinary } from "@/lib/cloudinary";
+import { revalidateProjectPages } from "@/lib/projects";
 
 export async function GET(
   _request: Request,
@@ -64,7 +65,7 @@ export async function PUT(
     }
 
     const updated = await ProjectModel.findByIdAndUpdate(id, parsed.data, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 
@@ -72,6 +73,7 @@ export async function PUT(
       return NextResponse.json({ message: "Project not found" }, { status: 404 });
     }
 
+    revalidateProjectPages();
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Project PUT [id] error:", error);
@@ -102,12 +104,14 @@ export async function DELETE(
     const imagesToDelete: string[] = [
       deleted.coverImage,
       ...(deleted.images || []),
+      ...(deleted.videos || []),
       ...(deleted.floorPlans?.map((fp) => fp.image) || []),
     ];
     deleteMultipleFromCloudinary(imagesToDelete).catch((err) =>
       console.error("Cloudinary project images cleanup error:", err)
     );
 
+    revalidateProjectPages();
     return NextResponse.json({ message: "Project deleted successfully." });
   } catch (error) {
     console.error("Project DELETE [id] error:", error);

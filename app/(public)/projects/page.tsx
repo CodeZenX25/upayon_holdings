@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { ProjectCard } from "@/components/project-card";
 import { ProjectFilters } from "@/components/project-filters";
-import { projects } from "@/lib/public-data";
+import { getProjects } from "@/lib/projects";
 
 export const metadata: Metadata = {
   title: "Our Projects | Upayon Holdings",
@@ -26,14 +26,14 @@ export default async function ProjectsPage({
   searchParams,
 }: ProjectsPageProps) {
   const { status, type, location } = await searchParams;
+  const projects = await getProjects();
   const activeStatus = filters.some((filter) => filter.value === status)
     ? (status ?? "all")
     : "all";
   const activeType =
     type === "land-share" || type === "flat-share" ? type : "all";
   const activeLocation =
-    location &&
-    ["Bashundhara", "Uttara", "Purbachal", "Aftabnagar"].includes(location)
+    location && projects.some((project) => project.location.includes(location))
       ? location
       : "all";
   const visibleProjects = projects.filter((project) => {
@@ -106,7 +106,7 @@ export default async function ProjectsPage({
           {visibleProjects.length ? (
             <div className="project-grid project-grid-listing">
               {visibleProjects.map((project) => (
-                <ProjectCard project={project} key={project.slug} />
+                <ProjectCard project={project} key={project.id} />
               ))}
             </div>
           ) : (

@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/server";
 import { ProjectModel } from "@/models";
 import { projectSchema } from "@/lib/validations";
+import { revalidateProjectPages } from "@/lib/projects";
 
 export async function GET(request: NextRequest) {
   const auth = await requirePermission("content:read");
@@ -92,6 +93,7 @@ export async function POST(request: Request) {
     }
 
     const project = await ProjectModel.create(parsed.data);
+    revalidateProjectPages();
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     console.error("Projects POST error:", error);

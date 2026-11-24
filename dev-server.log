@@ -9,15 +9,69 @@
 
  ✓ Starting...
  ○ Compiling middleware ...
- ✓ Compiled middleware in 719ms
- ✓ Ready in 2.6s
+ ✓ Compiled middleware in 852ms
+ ✓ Ready in 2.8s
  ○ Compiling / ...
- ✓ Compiled / in 4.7s
- GET / 200 in 16835ms
- GET / 200 in 1086ms
+ ✓ Compiled / in 5.3s
+ GET / 200 in 24931ms
+ ○ Compiling /projects ...
+ ✓ Compiled /projects in 1350ms
+ GET /projects 200 in 1899ms
+ ○ Compiling /projects/[slug] ...
+ ✓ Compiled /projects/[slug] in 778ms
+ GET /projects/demo-gulshan-residences 200 in 5459ms
+ ○ Compiling /admin/login ...
+ ✓ Compiled /admin/login in 1186ms
+ GET /admin/login 200 in 1429ms
+ GET / 200 in 292ms
+ ✓ Compiled in 788ms
+ ✓ Compiled in 531ms
+ ✓ Compiled in 262ms
+ ✓ Compiled /projects in 435ms
+ GET /projects 200 in 1655ms
  ○ Compiling /icon.svg ...
- ✓ Compiled /icon.svg in 717ms
- GET /icon.svg?icon.65c65bde.svg 200 in 1122ms
- GET / 200 in 1375ms
- GET / 200 in 728ms
- GET /icon.svg?icon.65c65bde.svg 200 in 418ms
+ ✓ Compiled /icon.svg in 779ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 1145ms
+ GET /projects 200 in 778ms
+ ✓ Compiled /projects/[slug] in 185ms
+ GET /projects/qa-test-project 200 in 1213ms
+ GET /projects/demo-gulshan-residences 200 in 860ms
+ ✓ Compiled in 346ms
+ ✓ Compiled /projects in 81ms
+ GET /projects 200 in 522ms
+ ✓ Compiled / in 107ms
+ GET / 200 in 1476ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 606ms
+ ✓ Compiled /projects/[slug] in 366ms
+ GET /projects/demo-gulshan-residences 200 in 2243ms
+ GET /projects/demo-gulshan-residences 200 in 2250ms
+ GET /projects/demo-gulshan-residences 200 in 1142ms
+ GET / 200 in 451ms
+ GET / 200 in 1356ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 401ms
+ GET /projects/demo-gulshan-residences 200 in 638ms
+ ⚠ Fast Refresh had to perform a full reload when ./components/projects/project-media.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 343ms
+ ✓ Compiled /projects/[slug] in 150ms
+ GET /projects/demo-gulshan-residences 200 in 1052ms
+ GET /projects/demo-gulshan-residences 200 in 1163ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 336ms
+ ✓ Compiled in 225ms
+ ✓ Compiled /projects/[slug] in 73ms
+ GET /projects/demo-gulshan-residences 200 in 344ms
+ GET /projects/qa-test-project 200 in 937ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 334ms
+ ⨯ upstream image response failed for https://res.cloudinary.com/demo/image/upload/man.jpg 404
+ GET /projects/qa-test-project 200 in 942ms
+ ⨯ upstream image response failed for https://res.cloudinary.com/demo/image/upload/man.jpg 404
+ GET /projects/qa-test-project 200 in 795ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 470ms
+ GET /projects/qa-test-project 200 in 755ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 404ms
+ GET /projects/qa-test-project 200 in 665ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 428ms
+ GET /projects/qa-test-project 200 in 711ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 438ms
+ GET /projects/qa-test-project 200 in 504ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 447ms
+ ⨯ upstream image response failed for https://res.cloudinary.com/demo/image/upload/man.jpg 404

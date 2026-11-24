@@ -8,6 +8,7 @@ import {
 } from "@/lib/cloudinary";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -68,17 +69,18 @@ export async function POST(request: NextRequest) {
 
     // Validate size and mime types
     for (const file of files) {
-      if (file.size > MAX_FILE_SIZE) {
+      const isImage = ALLOWED_IMAGE_TYPES.has(file.type.toLowerCase());
+      const isVideo = ALLOWED_VIDEO_TYPES.has(file.type.toLowerCase());
+      const limit = isVideo ? MAX_VIDEO_SIZE : MAX_FILE_SIZE;
+
+      if (file.size > limit) {
         return NextResponse.json(
           {
-            message: `File "${file.name}" exceeds the 5MB limit (${(file.size / (1024 * 1024)).toFixed(2)}MB).`,
+            message: `File "${file.name}" exceeds the ${limit / (1024 * 1024)}MB limit (${(file.size / (1024 * 1024)).toFixed(2)}MB).`,
           },
           { status: 400 }
         );
       }
-
-      const isImage = ALLOWED_IMAGE_TYPES.has(file.type.toLowerCase());
-      const isVideo = ALLOWED_VIDEO_TYPES.has(file.type.toLowerCase());
 
       if (!isImage && !isVideo) {
         return NextResponse.json(

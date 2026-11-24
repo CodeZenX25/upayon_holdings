@@ -96,10 +96,11 @@ export async function DELETE(
     }
 
     if (banner.image && banner.image.includes("res.cloudinary.com")) {
-      await deleteFromCloudinary(banner.image);
-    }
-    if (banner.videoUrl && banner.videoUrl.includes("res.cloudinary.com")) {
-      await deleteFromCloudinary(banner.videoUrl, "video");
+      const resourceType = banner.mediaType === "video" ? "video" : "image";
+      const deleted = await deleteFromCloudinary(banner.image, resourceType);
+      if (!deleted) {
+        console.warn(`Failed to delete Cloudinary asset: ${banner.image}`);
+      }
     }
 
     await BannerModel.findByIdAndDelete(id);

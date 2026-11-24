@@ -5,9 +5,12 @@ import { BannerModel } from "@/models/banner";
 import { bannerSchema, bannerArraySchema } from "@/lib/validations/banner";
 
 export async function GET() {
+  const auth = await requirePermission("content:read");
+  if (!auth.ok) return auth.response;
+
   try {
     await connectToDatabase();
-    const banners = await BannerModel.find().sort({ order: 1 }).lean();
+    const banners = await BannerModel.find({ isActive: true }).sort({ order: 1 }).lean();
     return NextResponse.json(banners);
   } catch (error) {
     console.error("Banners GET error:", error);

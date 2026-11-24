@@ -76,12 +76,14 @@ export function BannersView() {
   }, [fetchBanners]);
 
   const handleAddBanner = () => {
+    const tempId = `new-${Date.now()}`;
     const newBanner: BannerData = {
       ...defaultBanner,
+      _id: tempId,
       order: banners.length,
     };
     setBanners([...banners, newBanner]);
-    setEditingId(`new-${Date.now()}`);
+    setEditingId(tempId);
   };
 
   const handleUpdateBanner = (index: number, updatedBanner: BannerData) => {
@@ -553,14 +555,14 @@ function BannerEditor({
             allowVideo
             value={banner.image}
             onChange={(url) => {
-              const mediaUrl = url as string;
+              const urlStr = Array.isArray(url) ? url[0] : url;
               const isVid =
-                mediaUrl.endsWith(".mp4") ||
-                mediaUrl.endsWith(".webm") ||
-                mediaUrl.includes("/video/upload/");
+                urlStr.endsWith(".mp4") ||
+                urlStr.endsWith(".webm") ||
+                urlStr.includes("/video/upload/");
               onUpdate({
                 ...banner,
-                image: mediaUrl,
+                image: urlStr,
                 mediaType: isVid ? "video" : "image",
               });
             }}

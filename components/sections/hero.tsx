@@ -10,20 +10,8 @@ interface HeroProps {
   slides?: HeroSlide[];
 }
 
-const fallbackSlide: HeroSlide = {
-  title: "Building Spaces That Inspire",
-  subtitle:
-    "Upayon Holdings Ltd. is a trusted real estate developer in Bangladesh, delivering premium residential and commercial projects with exceptional craftsmanship, innovative design, and on-time completion.",
-  image:
-    "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=2400&q=85",
-  mediaType: "image",
-  buttonText: "Explore Projects",
-  buttonUrl: "/projects",
-  order: 0,
-};
-
 export function Hero({ slides }: HeroProps) {
-  const slideList = slides && slides.length > 0 ? slides : [fallbackSlide];
+  const slideList = slides && slides.length > 0 ? slides : [];
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   // Auto rotate slides if multiple exist
@@ -35,15 +23,15 @@ export function Hero({ slides }: HeroProps) {
     return () => clearInterval(timer);
   }, [slideList.length]);
 
-  const activeSlide = slideList[currentIndex] || fallbackSlide;
+  if (slideList.length === 0) {
+    return null;
+  }
 
-  const mediaSrc =
-    activeSlide.videoUrl ||
-    activeSlide.image ||
-    fallbackSlide.image;
+  const activeSlide = slideList[currentIndex];
+
+  const mediaSrc = activeSlide.image;
   const isVideo =
     activeSlide.mediaType === "video" ||
-    Boolean(activeSlide.videoUrl) ||
     mediaSrc?.endsWith(".mp4") ||
     mediaSrc?.endsWith(".webm") ||
     mediaSrc?.includes("/video/upload/");

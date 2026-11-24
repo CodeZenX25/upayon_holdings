@@ -1,18 +1,16 @@
 import type { ReactNode } from "react";
 import { ScrollStack } from "@/components/motion/scroll-stack";
 import { AboutIntro } from "@/components/sections/about-intro";
+import { BannerSection } from "@/components/sections/banner-section";
 import { BlogPreview } from "@/components/sections/blog-preview";
 import { Features } from "@/components/sections/features";
 import { GalleryShowcase } from "@/components/sections/gallery-showcase";
-import { Hero } from "@/components/sections/hero";
 import { LatestProjects } from "@/components/sections/latest-projects";
 import { LocationEnquiry } from "@/components/sections/location-enquiry";
 import { OwnershipModels } from "@/components/sections/ownership-models";
 import { Testimonial } from "@/components/sections/testimonial";
 import { blogPosts, galleryItems, projects } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
-import { connectToDatabase } from "@/lib/db";
-import { SiteSettingsModel, type HeroSlide } from "@/models";
 
 /** One full-width layer of the stacked scroll; `bg` is the section colour. */
 function Panel({ children, bg, first = false }: { children: ReactNode; bg: string; first?: boolean }) {
@@ -26,22 +24,10 @@ function Panel({ children, bg, first = false }: { children: ReactNode; bg: strin
 }
 
 export default async function HomePage() {
-  let heroSlides: HeroSlide[] = [];
-  try {
-    await connectToDatabase();
-    const settings = await SiteSettingsModel.findOne({ singletonKey: "default" }).lean();
-    if (settings?.heroSlides && settings.heroSlides.length > 0) {
-      heroSlides = JSON.parse(JSON.stringify(settings.heroSlides));
-    }
-  } catch (error) {
-    console.error("Failed to load hero slides:", error);
-  }
-
   return (
-    <ScrollStack>
-      <Panel first bg="bg-navy-950">
-        <Hero slides={heroSlides} />
-      </Panel>
+    <>
+      <BannerSection />
+      <ScrollStack>
       <Panel bg="bg-white">
         <AboutIntro />
       </Panel>
@@ -66,6 +52,7 @@ export default async function HomePage() {
       <Panel bg="bg-navy-950">
         <LocationEnquiry />
       </Panel>
-    </ScrollStack>
+      </ScrollStack>
+    </>
   );
 }

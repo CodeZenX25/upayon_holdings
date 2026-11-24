@@ -8,7 +8,6 @@ export interface Banner {
   title: string;
   subtitle?: string;
   image: string;
-  videoUrl?: string;
   mediaType: "image" | "video";
   buttonText?: string;
   buttonUrl?: string;
@@ -23,7 +22,6 @@ const bannerSchema = new Schema<Banner>(
     title: { type: String, required: true, trim: true },
     subtitle: { type: String, trim: true },
     image: { type: String, required: true, trim: true },
-    videoUrl: { type: String, trim: true },
     mediaType: {
       type: String,
       enum: ["image", "video"],
@@ -31,8 +29,8 @@ const bannerSchema = new Schema<Banner>(
     },
     buttonText: { type: String, trim: true },
     buttonUrl: { type: String, trim: true },
-    isActive: { type: Boolean, default: true },
-    order: { type: Number, default: 0, validate: Number.isInteger },
+    isActive: { type: Boolean, default: true, index: true },
+    order: { type: Number, default: 0, validate: Number.isInteger, index: true },
     backgroundColor: { type: String, default: "#000000", trim: true },
     textColor: { type: String, default: "#ffffff", trim: true },
   },

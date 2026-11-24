@@ -30,7 +30,8 @@
       "Bash(curl -s http://localhost:3000/api/admin/banners)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(echo \"TSC EXIT: $?\")"
+      "Bash(echo \"TSC EXIT: $?\")",
+      "Bash(wc -l components/admin/projects/*.tsx components/project-card.tsx scripts/seed.ts models/lead.ts lib/validations/lead.ts app/api/leads/route.ts components/admin/image-uploader.tsx)"
     ]
   }
 }

@@ -3,6 +3,7 @@ import { ScrollStack } from "@/components/motion/scroll-stack";
 import { AboutIntro } from "@/components/sections/about-intro";
 import { BannerSection } from "@/components/sections/banner-section";
 import { BlogPreview } from "@/components/sections/blog-preview";
+import { DesignShowcase } from "@/components/sections/design-showcase";
 import { Features } from "@/components/sections/features";
 import { GalleryShowcase } from "@/components/sections/gallery-showcase";
 import { LatestProjects } from "@/components/sections/latest-projects";
@@ -30,6 +31,9 @@ export default async function HomePage() {
       <ScrollStack>
       <Panel bg="bg-white">
         <AboutIntro />
+      </Panel>
+      <Panel bg="bg-paper">
+        <DesignShowcase />
       </Panel>
       <Panel bg="bg-paper">
         <LatestProjects projects={projects.slice(0, 3)} />

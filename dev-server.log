@@ -1,0 +1,23 @@
+
+> upayon-holdings@0.1.0 dev
+> next dev --turbopack
+
+   ▲ Next.js 15.5.29 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.68.105:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 719ms
+ ✓ Ready in 2.6s
+ ○ Compiling / ...
+ ✓ Compiled / in 4.7s
+ GET / 200 in 16835ms
+ GET / 200 in 1086ms
+ ○ Compiling /icon.svg ...
+ ✓ Compiled /icon.svg in 717ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 1122ms
+ GET / 200 in 1375ms
+ GET / 200 in 728ms
+ GET /icon.svg?icon.65c65bde.svg 200 in 418ms

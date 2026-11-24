@@ -15,6 +15,10 @@
   --color-mint: #c8f169;
   --color-ink: #121528;
   --color-paper: #f6f7fb;
+  --color-brand-sky: #3bafe3;
+  --color-brand-blue: #5da5da;
+  --color-brand-pink: #f76cb2;
+  --color-brand-purple: #7b4ca8;
 }
 
 @theme inline {

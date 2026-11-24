@@ -12,3 +12,4 @@
  ○ Compiling middleware ...
  ✓ Compiled middleware in 828ms
  ✓ Ready in 2.6s
+   Reload env: .env

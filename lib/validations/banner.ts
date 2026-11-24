@@ -5,7 +5,6 @@ export const bannerSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   subtitle: z.string().trim().max(500).nullable().optional().transform(val => val || undefined),
   image: z.string().trim().url("Image URL must be valid"),
-  videoUrl: z.string().trim().url("Video URL must be valid").optional(),
   mediaType: z.enum(["image", "video"]).default("image"),
   buttonText: z.string().trim().max(50).optional(),
   buttonUrl: z.string().trim().optional(),

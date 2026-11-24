@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { Types } from "mongoose";
 import { connectToDatabase } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/server";
 import { BannerModel } from "@/models/banner";
@@ -10,7 +12,7 @@ export async function GET() {
 
   try {
     await connectToDatabase();
-    const banners = await BannerModel.find({ isActive: true }).sort({ order: 1 }).lean();
+    const banners = await BannerModel.find().sort({ order: 1 }).lean();
     return NextResponse.json(banners);
   } catch (error) {
     console.error("Banners GET error:", error);
@@ -44,6 +46,7 @@ export async function POST(request: Request) {
 
     const banner = await BannerModel.create(dataToSave);
 
+    revalidatePath("/");
     return NextResponse.json(banner, { status: 201 });
   } catch (error) {
     console.error("Banners POST error:", error);
@@ -76,13 +79,15 @@ export async function PUT(request: Request) {
 
       await Promise.all(
         parsed.data.map((item) => {
-          if (item._id) {
-            return BannerModel.findByIdAndUpdate(item._id, item, { new: true });
+          if (item._id && Types.ObjectId.isValid(item._id)) {
+            return BannerModel.findByIdAndUpdate(item._id, item, { returnDocument: "after" });
           }
-          return BannerModel.create(item);
+          const { _id, ...dataToSave } = item;
+          return BannerModel.create(dataToSave);
         })
       );
 
+      revalidatePath("/");
       const banners = await BannerModel.find().sort({ order: 1 }).lean();
       return NextResponse.json(banners);
     } else {
@@ -104,8 +109,16 @@ export async function PUT(request: Request) {
           { status: 400 }
         );
       }
+
+      if (!Types.ObjectId.isValid(_id)) {
+        return NextResponse.json(
+          { message: "Invalid banner ID format." },
+          { status: 400 }
+        );
+      }
+
       const banner = await BannerModel.findByIdAndUpdate(_id, dataToSave, {
-        new: true,
+        returnDocument: "after",
       });
 
       if (!banner) {
@@ -115,6 +128,7 @@ export async function PUT(request: Request) {
         );
       }
 
+      revalidatePath("/");
       return NextResponse.json(banner);
     }
   } catch (error) {

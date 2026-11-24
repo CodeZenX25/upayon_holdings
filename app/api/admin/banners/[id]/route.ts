@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { Types } from "mongoose";
 import { connectToDatabase } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/server";
 import { BannerModel } from "@/models/banner";
@@ -9,8 +11,19 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requirePermission("content:read");
+  if (!auth.ok) return auth.response;
+
   try {
     const { id } = await params;
+
+    if (!Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: "Invalid banner ID format." },
+        { status: 400 }
+      );
+    }
+
     await connectToDatabase();
     const banner = await BannerModel.findById(id).lean();
 
@@ -40,6 +53,14 @@ export async function PUT(
 
   try {
     const { id } = await params;
+
+    if (!Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: "Invalid banner ID format." },
+        { status: 400 }
+      );
+    }
+
     await connectToDatabase();
     const body = await request.json();
 
@@ -56,7 +77,7 @@ export async function PUT(
 
     const { ...dataToSave } = parsed.data;
     const banner = await BannerModel.findByIdAndUpdate(id, dataToSave, {
-      new: true,
+      returnDocument: "after",
     });
 
     if (!banner) {
@@ -66,6 +87,7 @@ export async function PUT(
       );
     }
 
+    revalidatePath("/");
     return NextResponse.json(banner);
   } catch (error) {
     console.error("Banner PUT error:", error);
@@ -85,6 +107,14 @@ export async function DELETE(
 
   try {
     const { id } = await params;
+
+    if (!Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { message: "Invalid banner ID format." },
+        { status: 400 }
+      );
+    }
+
     await connectToDatabase();
     const banner = await BannerModel.findById(id);
 
@@ -104,6 +134,7 @@ export async function DELETE(
     }
 
     await BannerModel.findByIdAndDelete(id);
+    revalidatePath("/");
 
     return NextResponse.json({ message: "Banner deleted successfully." });
   } catch (error) {

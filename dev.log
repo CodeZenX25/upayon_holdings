@@ -1,0 +1,14 @@
+
+> upayon-holdings@0.1.0 dev
+> next dev --turbopack
+
+ ⚠ Port 3000 is in use by process 47020, using available port 3003 instead.
+   ▲ Next.js 15.5.29 (Turbopack)
+   - Local:        http://localhost:3003
+   - Network:      http://192.168.68.105:3003
+   - Environments: .env
+
+ ✓ Starting...
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 828ms
+ ✓ Ready in 2.6s

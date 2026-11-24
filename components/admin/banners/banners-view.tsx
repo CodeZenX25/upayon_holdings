@@ -94,7 +94,7 @@ export function BannersView() {
 
   const handleRemoveBanner = async (index: number) => {
     const banner = banners[index];
-    if (banner._id) {
+    if (banner._id && !banner._id.startsWith("new-")) {
       try {
         const res = await fetch(`/api/admin/banners/${banner._id}`, {
           method: "DELETE",
@@ -136,7 +136,7 @@ export function BannersView() {
 
       const bannersToSave = banners.map((banner) => {
         const { _id, ...rest } = banner;
-        return _id ? { _id, ...rest } : rest;
+        return _id && !_id.startsWith("new-") ? { _id, ...rest } : rest;
       });
 
       const res = await fetch("/api/admin/banners", {

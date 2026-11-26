@@ -41,7 +41,9 @@
       "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"features.tsx\"; npx eslint components/sections/features.tsx; \"exit: $LASTEXITCODE\")",
       "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"features.tsx|page.tsx\"; npx eslint components/sections/features.tsx \"app/\\(public\\)/page.tsx\"; \"exit: $LASTEXITCODE\")",
       "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"ownership-models\"; npx eslint components/sections/ownership-models.tsx; \"exit: $LASTEXITCODE\")",
-      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"gallery-showcase\"; npx eslint components/sections/gallery-showcase.tsx; \"exit: $LASTEXITCODE\")"
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"gallery-showcase\"; npx eslint components/sections/gallery-showcase.tsx; \"exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"land-to-landmark|page.tsx\"; npx eslint components/sections/land-to-landmark.tsx \"app/\\(public\\)/page.tsx\"; \"exit: $LASTEXITCODE\")",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 90; \"status: $\\($r.StatusCode\\)\"; \"has section: \" + \\($r.Content -match \"From raw land to\"\\) } catch { \"error: $\\($_.Exception.Message\\)\" })"
     ]
   }
 }

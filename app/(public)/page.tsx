@@ -6,6 +6,7 @@ import { BlogPreview } from "@/components/sections/blog-preview";
 import { DesignShowcase } from "@/components/sections/design-showcase";
 import { Features } from "@/components/sections/features";
 import { GalleryShowcase } from "@/components/sections/gallery-showcase";
+import { LandToLandmark } from "@/components/sections/land-to-landmark";
 import { LatestProjects } from "@/components/sections/latest-projects";
 import { LocationEnquiry } from "@/components/sections/location-enquiry";
 import { OwnershipModels } from "@/components/sections/ownership-models";
@@ -32,6 +33,9 @@ export default async function HomePage() {
     <>
       <BannerSection />
       <ScrollStack>
+      <Panel bg="bg-white">
+        <LandToLandmark />
+      </Panel>
       <Panel bg="bg-white">
         <AboutIntro />
       </Panel>

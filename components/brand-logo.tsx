@@ -14,11 +14,28 @@ export const brandColors = {
  * The Upayon "U" mark: four rising bars, rounded at the top, cut by the
  * circular base of the U. Vector recreation of the logo artwork.
  */
-export function BrandMark({ className }: { className?: string }) {
+export function BrandMark({
+  className,
+  x,
+  y,
+  width,
+  height,
+}: {
+  className?: string;
+  /** Position/size — only needed when nesting the mark inside another SVG. */
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+}) {
   const clipId = `upayon-u-${useId().replace(/:/g, "")}`;
   return (
     <svg
       viewBox="120 110 363 412"
+      x={x}
+      y={y}
+      width={width}
+      height={height}
       className={className}
       aria-hidden="true"
       focusable="false"

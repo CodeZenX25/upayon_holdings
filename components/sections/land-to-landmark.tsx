@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, KeyRound, RotateCcw } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
+import { BrandMark } from "@/components/brand-logo";
 import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
@@ -49,20 +50,48 @@ const steps = [
 
 /* ---- Scene geometry (viewBox 0 0 800 500) ---- */
 const GROUND_Y = 420;
-const FLOOR_H = 46;
-const FLOORS = 6;
-const BASE_Y = 400; // top of the foundation slab
+const FLOOR_H = 44;
+const FLOORS = 7; // ground-floor parking + 6 residential floors
+const BASE_Y = 410; // top of the plinth
 const floorYs = Array.from({ length: FLOORS }, (_, k) => BASE_Y - FLOOR_H * (k + 1));
 const TOP_Y = floorYs[FLOORS - 1];
-const windowXs = [262, 338, 414, 490];
+
+/* Front façade spans L→R; the side wall is drawn in oblique projection. */
+const L = 260;
+const R = 520;
+const DX = 44;
+const DY = 20;
+const WALL = "#ffffff";
+const SIDE = "#e2e4ef";
+const ROOFTOP = "#eceef6";
+const columnXs = [260, 383, 506]; // brick-clad columns, 14 wide
+const bayXs = [274, 397]; // balcony bays, 109 wide
+const BAY_W = 109;
+
+/** y offset of the side wall at x (it recedes up and to the right). */
+const skew = (x: number) => -((x - R) * DY) / DX;
+/** Parallelogram on the side wall between x0..x1 and yTop..yBot. */
+const sidePoly = (x0: number, x1: number, yTop: number, yBot: number) =>
+  `${x0},${yTop + skew(x0)} ${x1},${yTop + skew(x1)} ${x1},${yBot + skew(x1)} ${x0},${yBot + skew(x0)}`;
+
 const mastPoints = Array.from(
   { length: Math.floor((GROUND_Y - 64) / 24) + 1 },
   (_, i) => `${i % 2 ? 646 : 630},${GROUND_Y - i * 24}`,
 ).join(" ");
 
+const skyline = [
+  [20, 250, 60],
+  [86, 292, 50],
+  [142, 226, 64],
+  [600, 268, 50],
+  [656, 232, 64],
+  [726, 300, 74],
+] as const;
+
 export function LandToLandmark() {
   const root = useRef<HTMLElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const brickId = `ll-brick-${useId().replace(/:/g, "")}`;
   // Final state by default (all steps complete) — the timeline rewinds it.
   const [active, setActive] = useState<number>(steps.length - 1);
 
@@ -103,6 +132,7 @@ export function LandToLandmark() {
         tl.addLabel("land")
           .call(() => setActive(0))
           .from(q("[data-ll-ground]"), { opacity: 0, duration: 0.6 })
+          .from(q("[data-ll-city]"), { opacity: 0, y: 20, duration: 0.8, stagger: 0.06 }, "<")
           .from(q("[data-ll-plot]"), { scaleX: 0, transformOrigin: "0% 50%", duration: 0.9, ease: "power2.inOut" }, "<0.2")
           .from(q("[data-ll-peg]"), { y: -40, opacity: 0, duration: 0.6, ease: "bounce.out", stagger: 0.12 }, "<0.3")
           .fromTo(
@@ -139,12 +169,12 @@ export function LandToLandmark() {
           .from(q("[data-ll-found]"), { scaleX: 0, transformOrigin: "50% 50%", duration: 0.6 }, "<0.2")
           .from(
             q("[data-ll-floor]"),
-            { scaleY: 0, opacity: 0, transformOrigin: "50% 100%", duration: 0.45, ease: "back.out(1.4)", stagger: 0.35 },
+            { scaleY: 0, opacity: 0, transformOrigin: "50% 100%", duration: 0.45, ease: "back.out(1.4)", stagger: 0.3 },
           )
           .fromTo(
             q("[data-ll-hook]"),
             { y: 0 },
-            { y: 90, duration: 0.35, ease: "sine.inOut", yoyo: true, repeat: 5 },
+            { y: 90, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 7 },
             "<",
           )
           .to(q("[data-ll-plan]"), { opacity: 0.3, duration: 0.6 }, "<0.8");
@@ -156,13 +186,30 @@ export function LandToLandmark() {
           .to(q("[data-ll-crane]"), { x: 200, opacity: 0, duration: 0.8, ease: "power2.in" })
           .from(q("[data-ll-roof]"), { y: -40, opacity: 0, duration: 0.6, ease: "bounce.out" }, "<0.3")
           .from(
+            q("[data-ll-sign]"),
+            { scaleY: 0, transformOrigin: "50% 100%", duration: 0.6, ease: "back.out(1.8)" },
+            "<0.4",
+          )
+          // The landmark sign "switches on"
+          .fromTo(
+            q("[data-ll-sign-face]"),
+            { opacity: 0.15 },
+            { keyframes: { opacity: [0.15, 1, 0.3, 1, 0.6, 1] }, duration: 0.8, ease: "none" },
+          )
+          .from(
             q("[data-ll-win]"),
-            { fillOpacity: 0.12, duration: 0.25, stagger: { each: 0.04, from: "random" } },
-            "<0.2",
+            { fillOpacity: 0.04, duration: 0.25, stagger: { each: 0.03, from: "random" } },
+            "<",
           )
           .from(q("[data-ll-door]"), { scaleY: 0, transformOrigin: "50% 100%", duration: 0.4 }, "<")
-          .from(q("[data-ll-tree]"), { scale: 0, transformOrigin: "50% 100%", duration: 0.6, ease: "back.out(2)", stagger: 0.15 }, "<0.3")
-          .from(q("[data-ll-key]"), { scale: 0, y: 20, opacity: 0, duration: 0.7, ease: "back.out(2.2)" }, "<0.2");
+          .from(q("[data-ll-tree]"), { scale: 0, transformOrigin: "50% 100%", duration: 0.6, ease: "back.out(2)", stagger: 0.12 }, "<0.2")
+          .from(q("[data-ll-car]"), { x: -320, duration: 1.4, ease: "power2.out" }, "<")
+          .from(q("[data-ll-key]"), { scale: 0, y: 20, opacity: 0, duration: 0.7, ease: "back.out(2.2)" }, "<0.5");
+
+        // Ambient: clouds drift slowly, independent of the story
+        q("[data-ll-cloud]").forEach((cloud, i) => {
+          gsap.to(cloud, { x: i ? -36 : 44, duration: 9 + i * 3, ease: "sine.inOut", yoyo: true, repeat: -1 });
+        });
 
         ScrollTrigger.create({
           trigger: q("[data-ll-stage]")[0],
@@ -257,10 +304,10 @@ export function LandToLandmark() {
             {/* Keys badge */}
             <div
               data-ll-key
-              className="absolute left-1/2 top-[4%] z-10 -translate-x-1/2"
+              className="absolute left-3 top-3 z-10 sm:left-4 sm:top-4"
             >
-              <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-brand-purple px-3.5 py-2 text-[12px] font-bold uppercase tracking-[0.12em] text-white shadow-lg sm:px-4 sm:text-[13px]">
-                <KeyRound className="size-4" aria-hidden="true" />
+              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-purple px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-lg sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]">
+                <KeyRound className="size-3.5 sm:size-4" aria-hidden="true" />
                 Keys handed over
               </span>
             </div>
@@ -269,60 +316,222 @@ export function LandToLandmark() {
               viewBox="0 0 800 500"
               className="block h-auto w-full"
               role="img"
-              aria-label="Illustration: an empty plot of land is planned, a building rises floor by floor, and the keys are handed over."
+              aria-label="Illustration: an empty plot of land is planned, an Upayon residential building rises floor by floor with balconies and a rooftop garden, the Upayon sign lights up on the roof, and the keys are handed over."
             >
-              {/* Ground */}
+              <defs>
+                {/* Brick cladding (solid tint + white mortar joints) */}
+                <pattern id={brickId} width="14" height="8" patternUnits="userSpaceOnUse">
+                  <rect width="14" height="8" fill={PURPLE} fillOpacity="0.3" />
+                  <path d="M0 3.5H14M0 7.5H14M7 0V4M3.5 4V8M10.5 4V8" stroke="#ffffff" strokeOpacity="0.75" strokeWidth="1" />
+                </pattern>
+              </defs>
+
+              {/* Sky: sun, clouds, distant city */}
+              <circle cx="150" cy="104" r="30" fill={PURPLE} fillOpacity="0.12" />
+              {[
+                { x: 70, y: 150, s: 1 },
+                { x: 640, y: 128, s: 0.8 },
+              ].map(({ x, y, s }) => (
+                <g key={x} data-ll-cloud>
+                  <g transform={`translate(${x} ${y}) scale(${s})`} fill="#ffffff">
+                    <rect x="0" y="8" width="96" height="18" rx="9" />
+                    <circle cx="34" cy="10" r="14" />
+                    <circle cx="58" cy="6" r="16" />
+                  </g>
+                </g>
+              ))}
+              {skyline.map(([x, y, w]) => (
+                <g key={x} data-ll-city fill={NAVY}>
+                  <rect x={x} y={y} width={w} height={GROUND_Y - y} fillOpacity="0.05" />
+                  {Array.from({ length: Math.floor((GROUND_Y - y - 24) / 22) }, (_, r) => (
+                    <rect key={r} x={x + 10} y={y + 14 + r * 22} width={w - 20} height="6" fillOpacity="0.04" />
+                  ))}
+                </g>
+              ))}
+
+              {/* Street: pavement, kerb, road with lane markings */}
               <g data-ll-ground>
-                <rect x="0" y={GROUND_Y} width="800" height="80" fill={NAVY} fillOpacity="0.05" />
+                <rect x="0" y={GROUND_Y} width="800" height="22" fill={NAVY} fillOpacity="0.04" />
+                <rect x="0" y={GROUND_Y + 22} width="800" height="58" fill={NAVY} fillOpacity="0.09" />
                 <line x1="0" x2="800" y1={GROUND_Y} y2={GROUND_Y} stroke={NAVY} strokeOpacity="0.25" strokeWidth="2" />
+                <line x1="0" x2="800" y1={GROUND_Y + 22} y2={GROUND_Y + 22} stroke={NAVY} strokeOpacity="0.18" strokeWidth="2" />
+                {Array.from({ length: 14 }, (_, i) => (
+                  <rect key={i} x={i * 60 + 10} y={GROUND_Y + 50} width="30" height="3" rx="1.5" fill="#ffffff" />
+                ))}
               </g>
-              <rect data-ll-plot x="200" y={GROUND_Y - 3} width="400" height="6" rx="3" fill={PURPLE} />
-              {[198, 398, 598].map((x) => (
+              <rect data-ll-plot x="248" y={GROUND_Y - 3} width="324" height="6" rx="3" fill={PURPLE} />
+              {[246, 408, 570].map((x) => (
                 <rect key={x} data-ll-peg x={x} y={GROUND_Y - 20} width="4" height="20" rx="1" fill={NAVY} />
               ))}
 
               {/* Land flag (hidden in the final scene) */}
               <g data-ll-flag opacity="0">
-                <line x1="170" x2="170" y1="330" y2={GROUND_Y} stroke={NAVY} strokeWidth="3" />
-                <polygon points="172,332 232,346 172,360" fill={PURPLE} />
+                <line x1="200" x2="200" y1="330" y2={GROUND_Y} stroke={NAVY} strokeWidth="3" />
+                <polygon points="202,332 262,346 202,360" fill={PURPLE} />
               </g>
 
               {/* Blueprint */}
               <g data-ll-plan fill="none" stroke={PURPLE} strokeWidth="2">
-                <rect data-ll-plan-outline x="240" y={TOP_Y} width="320" height={BASE_Y - TOP_Y} pathLength={1} />
+                <rect data-ll-plan-outline x={L} y={TOP_Y} width={R - L} height={BASE_Y - TOP_Y} pathLength={1} />
                 {floorYs.slice(0, -1).map((y) => (
-                  <line key={y} data-ll-plan-line x1="240" x2="560" y1={y} y2={y} pathLength={1} />
+                  <line key={y} data-ll-plan-line x1={L} x2={R} y1={y} y2={y} pathLength={1} />
                 ))}
               </g>
 
-              {/* Foundation */}
-              <rect data-ll-found x="228" y={BASE_Y} width="344" height={GROUND_Y - BASE_Y} rx="2" fill={NAVY} />
-
-              {/* Floors */}
-              {floorYs.map((y, k) => (
-                <g key={y} data-ll-floor>
-                  <rect x="240" y={y} width="320" height={FLOOR_H} fill="#ffffff" stroke={NAVY} strokeWidth="2" />
-                  <rect x="236" y={y} width="328" height="5" fill={NAVY} />
-                  {(k === 0 ? [windowXs[0], windowXs[3]] : windowXs).map((x) => (
-                    <rect key={x} data-ll-win x={x} y={y + 15} width="48" height="22" rx="2" fill={PURPLE} fillOpacity="0.85" />
-                  ))}
-                  {k === 0 && <rect data-ll-door x="376" y={y + 10} width="48" height={FLOOR_H - 10} rx="2" fill={PURPLE} />}
-                </g>
-              ))}
-
-              {/* Roof */}
-              <g data-ll-roof>
-                <rect x="232" y={TOP_Y - 12} width="336" height="12" rx="2" fill={NAVY} />
-                <rect x="480" y={TOP_Y - 36} width="40" height="24" rx="3" fill={NAVY} />
+              {/* Plinth + cast shadow */}
+              <g data-ll-found>
+                <polygon points={`${R + 8},${GROUND_Y} ${R + 110},${GROUND_Y} ${R + DX + 8},${BASE_Y - DY}`} fill={NAVY} fillOpacity="0.07" />
+                <rect x={L - 8} y={BASE_Y} width={R - L + 16} height={GROUND_Y - BASE_Y} fill={NAVY} />
+                <polygon points={sidePoly(R + 8, R + DX + 8, BASE_Y, GROUND_Y)} fill={NAVY} fillOpacity="0.8" />
               </g>
 
-              {/* Trees */}
-              {[130, 690].map((x) => (
-                <g key={x} data-ll-tree>
-                  <rect x={x - 3} y={GROUND_Y - 40} width="6" height="40" fill={NAVY} />
-                  <circle cx={x} cy={GROUND_Y - 52} r="24" fill={PURPLE} fillOpacity="0.35" />
+              {/* Floors (DOM order = bottom-up, so they stack as they animate) */}
+              {floorYs.map((y, k) =>
+                k === 0 ? (
+                  /* Ground floor: open parking, entrance wall with Upayon plaque, glass lobby */
+                  <g key={y} data-ll-floor>
+                    <rect x={L} y={y} width={R - L} height={FLOOR_H} fill={NAVY} fillOpacity="0.16" />
+                    <polygon points={sidePoly(R, R + DX, y, y + FLOOR_H)} fill={SIDE} />
+                    <polygon points={sidePoly(R + 10, R + 34, y + 12, y + FLOOR_H)} fill={NAVY} fillOpacity="0.2" />
+                    <Car x={280} y={BASE_Y} scale={0.62} />
+                    <rect x="344" y={y} width="64" height={FLOOR_H} fill={WALL} />
+                    <rect x="352" y={y + 13} width="48" height="15" rx="2" fill={PURPLE} />
+                    <text
+                      x="376"
+                      y={y + 23.5}
+                      textAnchor="middle"
+                      fontSize="8"
+                      fontWeight="700"
+                      fill="#ffffff"
+                      textLength="36"
+                      lengthAdjust="spacingAndGlyphs"
+                    >
+                      UPAYON
+                    </text>
+                    <rect x="414" y={y + 7} width="90" height={FLOOR_H - 7} fill={WALL} stroke={PURPLE} strokeWidth="2" />
+                    <line x1="431" x2="431" y1={y + 7} y2={BASE_Y} stroke={PURPLE} strokeWidth="1" />
+                    <line x1="487" x2="487" y1={y + 7} y2={BASE_Y} stroke={PURPLE} strokeWidth="1" />
+                    <rect data-ll-door x="446" y={y + 14} width="26" height={FLOOR_H - 14} fill={PURPLE} />
+                    <rect x="408" y={y + 3} width="102" height="4" fill={PURPLE} />
+                    {[L, 332, 508].map((px) => (
+                      <rect key={px} x={px} y={y} width="12" height={FLOOR_H} fill={NAVY} />
+                    ))}
+                  </g>
+                ) : (
+                  /* Residential floor: brick columns, glazed bays, balconies, greenery */
+                  <g key={y} data-ll-floor>
+                    <rect x={L} y={y} width={R - L} height={FLOOR_H} fill={WALL} />
+                    <polygon points={sidePoly(R, R + DX, y, y + FLOOR_H)} fill={SIDE} />
+                    <polygon points={sidePoly(R + 11, R + 33, y + 9, y + 32)} fill={NAVY} fillOpacity="0.3" />
+                    {columnXs.map((cx) => (
+                      <rect key={cx} x={cx} y={y} width="14" height={FLOOR_H} fill={`url(#${brickId})`} />
+                    ))}
+                    {bayXs.map((bx, bi) => {
+                      const lit = (k + bi) % 3 === 0;
+                      const green = (k + bi) % 2 === 1;
+                      return (
+                        <g key={bx}>
+                          <rect
+                            data-ll-win
+                            x={bx + 8}
+                            y={y + 7}
+                            width={BAY_W - 16}
+                            height="24"
+                            fill={lit ? PURPLE : NAVY}
+                            fillOpacity={lit ? 0.45 : 0.2}
+                            stroke={NAVY}
+                            strokeWidth="1.5"
+                          />
+                          <line x1={bx + 39} x2={bx + 39} y1={y + 7} y2={y + 31} stroke={NAVY} strokeWidth="1.2" />
+                          <line x1={bx + 70} x2={bx + 70} y1={y + 7} y2={y + 31} stroke={NAVY} strokeWidth="1.2" />
+                          <polygon
+                            points={`${bx + 18},${y + 31} ${bx + 32},${y + 7} ${bx + 42},${y + 7} ${bx + 28},${y + 31}`}
+                            fill="#ffffff"
+                            fillOpacity="0.45"
+                          />
+                          {/* Glass balcony railing */}
+                          <rect x={bx + 3} y={y + 30} width={BAY_W - 6} height="10" fill={NAVY} fillOpacity="0.08" />
+                          <line x1={bx + 3} x2={bx + BAY_W - 3} y1={y + 30} y2={y + 30} stroke={NAVY} strokeWidth="1.5" />
+                          {green && (
+                            <g fill={PURPLE} fillOpacity="0.55">
+                              <circle cx={bx + 12} cy={y + 30} r="6" />
+                              <circle cx={bx + 22} cy={y + 29} r="7" />
+                              <circle cx={bx + 33} cy={y + 30} r="5" />
+                              <rect x={bx + 10} y={y + 30} width="4" height="12" rx="2" />
+                              <rect x={bx + 21} y={y + 30} width="4" height="9" rx="2" />
+                            </g>
+                          )}
+                        </g>
+                      );
+                    })}
+                    {/* Floor slab / balcony edge */}
+                    <rect x={L - 4} y={y + 40} width={R - L + 8} height="4" fill={NAVY} />
+                    <polygon points={sidePoly(R + 4, R + DX, y + 40, y + 44)} fill={NAVY} />
+                  </g>
+                ),
+              )}
+
+              {/* Roof: top deck, stair room + tank, rooftop garden, Upayon landmark sign, parapet */}
+              <g data-ll-roof>
+                <polygon points={`${L},${TOP_Y} ${L + DX},${TOP_Y - DY} ${R + DX},${TOP_Y - DY} ${R},${TOP_Y}`} fill={ROOFTOP} />
+                <rect x="464" y={TOP_Y - 32} width="38" height="28" fill={NAVY} />
+                <polygon points={`502,${TOP_Y - 32} 512,${TOP_Y - 37} 512,${TOP_Y - 9} 502,${TOP_Y - 4}`} fill={NAVY} fillOpacity="0.7" />
+                <rect x="470" y={TOP_Y - 40} width="26" height="8" rx="2" fill={NAVY} fillOpacity="0.55" />
+                <g fill={PURPLE}>
+                  <circle cx="300" cy={TOP_Y - 22} r="11" fillOpacity="0.4" />
+                  <circle cx="288" cy={TOP_Y - 10} r="8" fillOpacity="0.55" />
+                  <circle cx="304" cy={TOP_Y - 9} r="9" fillOpacity="0.55" />
+                  <circle cx="320" cy={TOP_Y - 11} r="8" fillOpacity="0.45" />
+                  <circle cx="335" cy={TOP_Y - 9} r="7" fillOpacity="0.55" />
+                </g>
+
+                <g data-ll-sign>
+                  <rect x="376" y={TOP_Y - 28} width="3" height="24" fill={NAVY} />
+                  <rect x="441" y={TOP_Y - 28} width="3" height="24" fill={NAVY} />
+                  <rect x="340" y={TOP_Y - 62} width="140" height="35" rx="3" fill={WALL} stroke={NAVY} strokeWidth="2.5" />
+                  <g data-ll-sign-face>
+                    <BrandMark x={356} y={TOP_Y - 56} width={20} height={23} />
+                    <text
+                      x="382"
+                      y={TOP_Y - 37}
+                      fontSize="19"
+                      fontWeight="800"
+                      fill={PURPLE}
+                      textLength="82"
+                      lengthAdjust="spacingAndGlyphs"
+                    >
+                      UPAYON
+                    </text>
+                  </g>
+                </g>
+
+                <rect x={L - 4} y={TOP_Y - 8} width={R - L + 8} height="8" fill={NAVY} />
+                <polygon points={sidePoly(R + 4, R + DX, TOP_Y - 8, TOP_Y)} fill={NAVY} />
+              </g>
+
+              {/* Street lamps */}
+              {[160, 590].map((x) => (
+                <g key={x}>
+                  <rect x={x - 1.5} y={GROUND_Y - 62} width="3" height="62" fill={NAVY} />
+                  <rect x={x - 1.5} y={GROUND_Y - 62} width="16" height="3" fill={NAVY} />
+                  <rect x={x + 9} y={GROUND_Y - 59} width="9" height="4" rx="2" fill={PURPLE} />
                 </g>
               ))}
+
+              {/* Trees */}
+              {[110, 214, 684, 752].map((x, i) => (
+                <g key={x} data-ll-tree>
+                  <rect x={x - 2.5} y={GROUND_Y - 34} width="5" height="34" fill={NAVY} />
+                  <circle cx={x} cy={GROUND_Y - 48} r={i % 2 ? 18 : 22} fill={PURPLE} fillOpacity="0.3" />
+                  <circle cx={x - 8} cy={GROUND_Y - 40} r="12" fill={PURPLE} fillOpacity="0.4" />
+                  <circle cx={x + 9} cy={GROUND_Y - 42} r="11" fill={PURPLE} fillOpacity="0.45" />
+                </g>
+              ))}
+
+              {/* Car arriving at handover */}
+              <g data-ll-car>
+                <Car x={84} y={GROUND_Y + 40} />
+              </g>
 
               {/* Tower crane (hidden in the final scene) */}
               <g data-ll-crane opacity="0">
@@ -359,6 +568,25 @@ export function LandToLandmark() {
         </div>
       </div>
     </section>
+  );
+}
+
+/** Simple side-view car; (x, y) = rear bumper at ground level. */
+function Car({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <polygon points="14,-15 23,-26 50,-26 60,-15" fill={NAVY} />
+      <polygon points="20,-16 26,-23 36,-23 36,-16" fill="#ffffff" fillOpacity="0.7" />
+      <polygon points="39,-16 39,-23 48,-23 54,-16" fill="#ffffff" fillOpacity="0.7" />
+      <rect x="0" y="-16" width="74" height="11" rx="4" fill={NAVY} />
+      <rect x="68" y="-13" width="5" height="3" rx="1" fill={PURPLE} />
+      {[16, 58].map((cx) => (
+        <g key={cx}>
+          <circle cx={cx} cy="-5" r="5.5" fill={NAVY} stroke="#ffffff" strokeWidth="1.5" />
+          <circle cx={cx} cy="-5" r="1.8" fill="#ffffff" />
+        </g>
+      ))}
+    </g>
   );
 }
 

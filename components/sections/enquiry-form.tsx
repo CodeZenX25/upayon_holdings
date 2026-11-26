@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 
 type Status = "idle" | "sending" | "success" | "error";
 
+// Light theme: boxed fields on white, logo-purple focus ring (no gradients).
 const fieldClass =
-  "w-full border-0 border-b border-white/20 bg-transparent px-0 py-3 text-[16px] text-white placeholder:text-white/35 outline-none transition focus:border-gold";
-const labelClass = "block text-[12px] font-bold uppercase tracking-[0.2em] text-white/60";
+  "mt-2 w-full rounded-xl border border-navy-900/10 bg-paper px-4 py-3.5 text-[16px] text-navy-900 placeholder:text-slate-400 outline-none transition focus:border-brand-purple focus:bg-white focus:ring-4 focus:ring-brand-purple/15";
+const labelClass = "block text-[12px] font-bold uppercase tracking-[0.18em] text-slate-600";
 
 export function EnquiryForm() {
   const [status, setStatus] = useState<Status>("idle");
@@ -47,8 +48,8 @@ export function EnquiryForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-7">
-      <div className="grid gap-7 sm:grid-cols-2">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
           <span className={labelClass}>Name *</span>
           <input name="name" required maxLength={120} autoComplete="name" placeholder="Enter your name" className={fieldClass} />
@@ -58,14 +59,14 @@ export function EnquiryForm() {
           <input name="phone" type="tel" required minLength={7} maxLength={30} autoComplete="tel" placeholder="+880 1XXX-XXXXXX" className={fieldClass} />
         </label>
       </div>
-      <div className="grid gap-7 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
           <span className={labelClass}>Email</span>
           <input name="email" type="email" autoComplete="email" placeholder="you@example.com" className={fieldClass} />
         </label>
         <label className="block">
           <span className={labelClass}>Interested in</span>
-          <select name="inquiryType" defaultValue="general" className={cn(fieldClass, "[&>option]:text-navy-900")}>
+          <select name="inquiryType" defaultValue="general" className={cn(fieldClass, "cursor-pointer")}>
             <option value="general">General enquiry</option>
             <option value="land-share">Land share</option>
             <option value="flat-share">Flat share</option>
@@ -88,7 +89,7 @@ export function EnquiryForm() {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="group flex w-full items-center justify-center gap-2 rounded-full bg-gold px-8 py-4 text-[14px] font-bold uppercase tracking-[0.14em] text-navy-950 transition hover:bg-[#e6c47d] disabled:opacity-60"
+        className="group !mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-8 py-4 text-[14px] font-bold uppercase tracking-[0.12em] text-white transition-colors duration-300 hover:bg-navy-900 disabled:opacity-60"
       >
         {status === "sending" ? (
           <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
@@ -102,9 +103,9 @@ export function EnquiryForm() {
         role="status"
         aria-live="polite"
         className={cn(
-          "flex items-center gap-2 text-[15px]",
-          status === "success" && "text-mint",
-          status === "error" && "text-red-300",
+          "flex items-center gap-2 text-[15px] font-medium empty:hidden",
+          status === "success" && "text-brand-purple",
+          status === "error" && "text-red-600",
         )}
       >
         {status === "success" && <CheckCircle2 className="size-4" aria-hidden="true" />}

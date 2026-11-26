@@ -48,7 +48,8 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
           aria-hidden="true"
         />
         {/* Modal content */}
-        <div className="relative z-50 w-full max-w-lg my-auto">{children}</div>
+        {/* Width is set on DialogContent (default max-w-lg) so each dialog can override it */}
+        <div className="relative z-50 my-auto flex w-full justify-center">{children}</div>
       </div>
     </DialogContext.Provider>
   );
@@ -64,7 +65,7 @@ export function DialogContent({
   return (
     <div
       className={cn(
-        "relative w-full rounded-xl border border-border bg-card p-6 shadow-xl animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto",
+        "relative mx-auto w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-xl animate-in zoom-in-95 duration-150 max-h-[90dvh] overflow-y-auto",
         className
       )}
       {...props}

@@ -15,10 +15,10 @@ export async function GET() {
     if (!settings) {
       settings = await SiteSettingsModel.create({
         singletonKey: "default",
-        phone: "+880 1700-000000",
+        phone: "+880 1339336953",
         email: "info@upayonholdings.com",
-        address: "Gulshan, Dhaka, Bangladesh",
-        whatsapp: "+880 1700-000000",
+        address: "Upayon Group, House-342, Road-5, Avenue 3,Mirpur DOHS, Dhaka 1216",
+        whatsapp: "+880 1339336953",
         socialLinks: [
           { platform: "Facebook", url: "https://facebook.com/upayonholdings" },
           { platform: "LinkedIn", url: "https://linkedin.com/company/upayonholdings" },

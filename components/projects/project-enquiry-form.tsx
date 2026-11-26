@@ -4,9 +4,10 @@ import { useState, type FormEvent } from "react";
 import { ArrowRight, CheckCircle2, LoaderCircle } from "lucide-react";
 
 interface ProjectEnquiryFormProps {
-  projectId: string;
+  /** Linked Project id (omit for pages that aren't Projects, e.g. Construction). */
+  projectId?: string;
   projectTitle: string;
-  inquiryType: "land-share" | "flat-share";
+  inquiryType: "land-share" | "flat-share" | "general";
 }
 
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind: "error"; message: string };
@@ -32,7 +33,9 @@ export function ProjectEnquiryForm({ projectId, projectTitle, inquiryType }: Pro
           name: value("name"),
           phone: value("phone"),
           email: value("email") || undefined,
-          message: value("message") || `I would like more information about ${projectTitle}.`,
+          message: projectId
+            ? value("message") || `I would like more information about ${projectTitle}.`
+            : `[${projectTitle}] ${value("message") || "I would like more information about this construction."}`,
           project: projectId,
           inquiryType,
         }),

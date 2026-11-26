@@ -12,6 +12,7 @@ import { LocationEnquiry } from "@/components/sections/location-enquiry";
 import { OwnershipModels } from "@/components/sections/ownership-models";
 import { Testimonial } from "@/components/sections/testimonial";
 import { getProjects } from "@/lib/projects";
+import { getActiveTestimonials } from "@/lib/testimonials";
 import { blogPosts, galleryItems } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +28,7 @@ function Panel({ children, bg, first = false }: { children: ReactNode; bg: strin
 }
 
 export default async function HomePage() {
-  const latestProjects = await getProjects(3);
+  const [latestProjects, testimonials] = await Promise.all([getProjects(3), getActiveTestimonials()]);
 
   return (
     <>
@@ -55,12 +56,12 @@ export default async function HomePage() {
         <GalleryShowcase items={galleryItems.slice(0, 4)} />
       </Panel>
       <Panel bg="bg-paper">
-        <Testimonial />
+        <Testimonial items={testimonials} />
       </Panel>
       <Panel bg="bg-white">
         <BlogPreview posts={blogPosts.slice(0, 3)} />
       </Panel>
-      <Panel bg="bg-navy-950">
+      <Panel bg="bg-paper">
         <LocationEnquiry />
       </Panel>
       </ScrollStack>

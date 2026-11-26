@@ -4,6 +4,13 @@ export { BannerModel } from "./banner";
 export type { Banner, BannerDocument } from "./banner";
 export { BlogModel } from "./blog";
 export type { Blog, BlogDocument, BlogSeo } from "./blog";
+export { ConstructionModel } from "./construction";
+export type {
+  Construction,
+  ConstructionDocument,
+  ConstructionStatus,
+  ConstructionType,
+} from "./construction";
 export { GalleryItemModel } from "./gallery-item";
 export type {
   GalleryCategory,
@@ -36,5 +43,7 @@ export type {
   SiteStats,
   SocialLink,
 } from "./site-settings";
+export { TeamMemberModel } from "./team-member";
+export type { TeamGroup, TeamMember, TeamMemberDocument } from "./team-member";
 export { TestimonialModel } from "./testimonial";
 export type { Testimonial, TestimonialDocument } from "./testimonial";

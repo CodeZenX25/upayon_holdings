@@ -48,10 +48,10 @@ interface SiteSettingsData {
 }
 
 const defaultSettings: SiteSettingsData = {
-  phone: "+880 1700-000000",
+  phone: "+880 1339336953",
   email: "info@upayonholdings.com",
-  address: "Gulshan Avenue, Dhaka, Bangladesh",
-  whatsapp: "+880 1700-000000",
+  address: "Upayon Group, House-342, Road-5, Avenue 3, Mirpur DOHS, Dhaka 1216",
+  whatsapp: "+880 1339336953",
   socialLinks: [
     { platform: "Facebook", url: "https://facebook.com/upayonholdings" },
     { platform: "LinkedIn", url: "https://linkedin.com/company/upayonholdings" },
@@ -249,7 +249,7 @@ export function SettingsView() {
                       onChange={(e) =>
                         setSettings((prev) => ({ ...prev, address: e.target.value }))
                       }
-                      placeholder="Gulshan Avenue, Dhaka, Bangladesh"
+                      placeholder="House-342, Road-5, Avenue 3, Mirpur DOHS, Dhaka 1216"
                     />
                   </div>
                 </div>

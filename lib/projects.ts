@@ -28,14 +28,14 @@ export interface ProjectView {
   videos: string[];
   landArea?: string;
   projectArea?: string;
-  floors?: number;
-  totalUnits?: number;
-  unitsPerFloor?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  verandahs?: number;
-  lifts?: number;
-  parking?: number;
+  floors?: string;
+  totalUnits?: string;
+  unitsPerFloor?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  verandahs?: string;
+  lifts?: string;
+  parking?: string;
   flatSizes: string[];
   facing?: string;
   handoverDate?: string;
@@ -59,6 +59,13 @@ const emptyAmenities: ProjectAmenities = {
   nearby: [],
 };
 
+/** Spec fields used to be numbers; lean() returns whatever is stored, so normalise to text. */
+function specText(value: unknown): string | undefined {
+  if (typeof value === "number") return value > 0 ? String(value) : undefined;
+  if (typeof value === "string") return value.trim() || undefined;
+  return undefined;
+}
+
 function toView(doc: ProjectLean): ProjectView {
   return {
     id: doc._id.toString(),
@@ -77,14 +84,14 @@ function toView(doc: ProjectLean): ProjectView {
     videos: doc.videos ?? [],
     landArea: doc.landArea || undefined,
     projectArea: doc.projectArea || undefined,
-    floors: doc.floors ?? undefined,
-    totalUnits: doc.totalUnits ?? undefined,
-    unitsPerFloor: doc.unitsPerFloor ?? undefined,
-    bedrooms: doc.bedrooms ?? undefined,
-    bathrooms: doc.bathrooms ?? undefined,
-    verandahs: doc.verandahs ?? undefined,
-    lifts: doc.lifts ?? undefined,
-    parking: doc.parking ?? undefined,
+    floors: specText(doc.floors),
+    totalUnits: specText(doc.totalUnits),
+    unitsPerFloor: specText(doc.unitsPerFloor),
+    bedrooms: specText(doc.bedrooms),
+    bathrooms: specText(doc.bathrooms),
+    verandahs: specText(doc.verandahs),
+    lifts: specText(doc.lifts),
+    parking: specText(doc.parking),
     flatSizes: doc.flatSizes ?? [],
     facing: doc.facing || undefined,
     handoverDate: doc.handoverDate ? new Date(doc.handoverDate).toISOString() : undefined,

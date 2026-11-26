@@ -59,14 +59,15 @@ export interface Project {
   videos: string[];
   landArea?: string;
   projectArea?: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  verandahs?: number;
-  lifts?: number;
-  parking?: number;
-  unitsPerFloor?: number;
-  floors?: number;
-  totalUnits?: number;
+  /* Free text so admins can write "3", "G+8", "2 (covered)", etc. Older documents may still hold numbers. */
+  bedrooms?: string;
+  bathrooms?: string;
+  verandahs?: string;
+  lifts?: string;
+  parking?: string;
+  unitsPerFloor?: string;
+  floors?: string;
+  totalUnits?: string;
   flatSizes: string[];
   facing?: string;
   handoverDate?: Date;
@@ -169,20 +170,20 @@ const projectSchema = new Schema<Project>(
     location: { type: String, required: true, trim: true },
     address: { type: String, required: true, trim: true },
     shortDescription: { type: String, required: true, trim: true },
-    description: { type: String, required: true },
+    description: { type: String, default: "" },
     coverImage: { type: String, required: true, trim: true },
     images: { type: [String], default: [] },
     videos: { type: [String], default: [] },
     landArea: { type: String, trim: true },
     projectArea: { type: String, trim: true },
-    bedrooms: { type: Number, min: 0, validate: Number.isInteger },
-    bathrooms: { type: Number, min: 0, validate: Number.isInteger },
-    verandahs: { type: Number, min: 0, validate: Number.isInteger },
-    lifts: { type: Number, min: 0, validate: Number.isInteger },
-    parking: { type: Number, min: 0, validate: Number.isInteger },
-    unitsPerFloor: { type: Number, min: 0, validate: Number.isInteger },
-    floors: { type: Number, min: 0, validate: Number.isInteger },
-    totalUnits: { type: Number, min: 0, validate: Number.isInteger },
+    bedrooms: { type: String, trim: true, maxlength: 60 },
+    bathrooms: { type: String, trim: true, maxlength: 60 },
+    verandahs: { type: String, trim: true, maxlength: 60 },
+    lifts: { type: String, trim: true, maxlength: 60 },
+    parking: { type: String, trim: true, maxlength: 60 },
+    unitsPerFloor: { type: String, trim: true, maxlength: 60 },
+    floors: { type: String, trim: true, maxlength: 60 },
+    totalUnits: { type: String, trim: true, maxlength: 60 },
     flatSizes: { type: [String], default: [] },
     facing: { type: String, trim: true },
     handoverDate: { type: Date },
@@ -213,6 +214,13 @@ export type ProjectDocument = HydratedDocument<Project> & {
   createdAt: Date;
   updatedAt: Date;
 };
+
+// In development, hot reload keeps the previously compiled model in memory, so
+// schema edits (e.g. a field changing from Number to String) would be ignored
+// until a restart. Recompile it there; production always starts fresh.
+if (process.env.NODE_ENV !== "production" && mongoose.models.Project) {
+  mongoose.deleteModel("Project");
+}
 
 export const ProjectModel =
   (mongoose.models.Project as Model<Project> | undefined) ??

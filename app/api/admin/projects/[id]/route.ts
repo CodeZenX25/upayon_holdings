@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/server";
 import { ProjectModel } from "@/models";
-import { projectSchema } from "@/lib/validations";
+import { projectSchema, validationErrorBody } from "@/lib/validations";
 import { deleteMultipleFromCloudinary } from "@/lib/cloudinary";
 import { revalidateProjectPages } from "@/lib/projects";
 
@@ -46,10 +46,7 @@ export async function PUT(
 
     const parsed = projectSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { message: "Validation error", errors: parsed.error.format() },
-        { status: 400 }
-      );
+      return NextResponse.json(validationErrorBody(parsed.error), { status: 400 });
     }
 
     // Check slug uniqueness with other projects

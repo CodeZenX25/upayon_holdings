@@ -24,6 +24,7 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { ImageUploader } from "@/components/admin/image-uploader";
+import { BrochureUploader } from "@/components/admin/brochure-uploader";
 
 export interface ProjectData {
   _id?: string;
@@ -42,14 +43,14 @@ export interface ProjectData {
   videos: string[];
   landArea?: string;
   projectArea?: string;
-  floors?: number;
-  totalUnits?: number;
-  unitsPerFloor?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  verandahs?: number;
-  lifts?: number;
-  parking?: number;
+  floors?: string;
+  totalUnits?: string;
+  unitsPerFloor?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  verandahs?: string;
+  lifts?: string;
+  parking?: string;
   flatSizes: string[];
   facing?: string;
   handoverDate?: string;
@@ -83,6 +84,17 @@ const amenityGroups: { key: AmenityGroup; label: string; placeholder: string }[]
   { key: "nearby", label: "Nearby", placeholder: "e.g. Hospital" },
 ];
 
+const projectTabs = [
+  { value: "basic", label: "Basic Info" },
+  { value: "details", label: "Details" },
+  { value: "features", label: "Features" },
+  { value: "amenities", label: "Amenities" },
+  { value: "floorplans", label: "Floor Plans" },
+  { value: "progress", label: "Progress" },
+  { value: "images", label: "Images" },
+  { value: "seo", label: "SEO" },
+] as const;
+
 const emptyAmenities: Record<AmenityGroup, string[]> = {
   interior: [],
   outdoor: [],
@@ -91,14 +103,69 @@ const emptyAmenities: Record<AmenityGroup, string[]> = {
   nearby: [],
 };
 
-const countFields: { key: "bedrooms" | "bathrooms" | "verandahs" | "lifts" | "parking" | "unitsPerFloor"; label: string }[] = [
-  { key: "bedrooms", label: "Bedrooms (per unit)" },
-  { key: "bathrooms", label: "Bathrooms (per unit)" },
-  { key: "verandahs", label: "Verandahs (per unit)" },
-  { key: "unitsPerFloor", label: "Units per floor" },
-  { key: "lifts", label: "Lifts" },
-  { key: "parking", label: "Parking spaces" },
+type SpecKey =
+  | "bedrooms"
+  | "bathrooms"
+  | "verandahs"
+  | "lifts"
+  | "parking"
+  | "unitsPerFloor"
+  | "floors"
+  | "totalUnits";
+
+const specKeys: SpecKey[] = [
+  "bedrooms",
+  "bathrooms",
+  "verandahs",
+  "lifts",
+  "parking",
+  "unitsPerFloor",
+  "floors",
+  "totalUnits",
 ];
+
+/** Free-text spec fields: numbers, letters or both (e.g. "12", "G+8", "2 covered"). */
+const specFields: { key: SpecKey; label: string; placeholder: string }[] = [
+  { key: "floors", label: "Total Building Floors", placeholder: "e.g. 12 or G+8" },
+  { key: "totalUnits", label: "Total Residential Units", placeholder: "e.g. 24 or 24 flats" },
+  { key: "bedrooms", label: "Bedrooms (per unit)", placeholder: "e.g. 3 or 3 + servant room" },
+  { key: "bathrooms", label: "Bathrooms (per unit)", placeholder: "e.g. 3 or 2 attached + 1" },
+  { key: "verandahs", label: "Verandahs (per unit)", placeholder: "e.g. 2 or 3 (1 drawing)" },
+  { key: "unitsPerFloor", label: "Units per floor", placeholder: "e.g. 2 or 2 (A & B)" },
+  { key: "lifts", label: "Lifts", placeholder: "e.g. 1 or 2 (8 person)" },
+  { key: "parking", label: "Parking spaces", placeholder: "e.g. 12 or 1 per flat" },
+];
+
+/** Which tab holds each top-level field — used to jump to a field the server rejected. */
+const fieldTab: Record<string, (typeof projectTabs)[number]["value"]> = {
+  category: "details",
+  availability: "details",
+  projectArea: "details",
+  landArea: "details",
+  facing: "details",
+  handoverDate: "details",
+  order: "details",
+  brochureUrl: "details",
+  mapEmbedUrl: "details",
+  flatSizes: "details",
+  ...Object.fromEntries(specKeys.map((key) => [key, "details" as const])),
+  features: "features",
+  highlights: "amenities",
+  amenities: "amenities",
+  floorPlans: "floorplans",
+  progress: "progress",
+  progressUpdates: "progress",
+  coverImage: "images",
+  images: "images",
+  videos: "images",
+  seo: "seo",
+};
+
+/** Older projects stored these as numbers — show them as text in the form. */
+function specToText(value: unknown): string {
+  if (typeof value === "number") return value > 0 ? String(value) : "";
+  return typeof value === "string" ? value : "";
+}
 
 function ChipListInput({
   values,
@@ -226,6 +293,7 @@ export function ProjectDialog({
         amenities: { ...emptyAmenities, ...project.amenities },
         videos: project.videos ?? [],
         highlights: project.highlights ?? [],
+        ...Object.fromEntries(specKeys.map((key) => [key, specToText(project[key])])),
       });
     } else {
       setFormData(defaultProject);
@@ -280,19 +348,11 @@ export function ProjectDialog({
         : "/api/admin/projects";
       const method = isEdit ? "PUT" : "POST";
 
-      const toCount = (value?: number) =>
-        value === undefined || Number.isNaN(value) ? undefined : Number(value);
-
       const payload = {
         ...formData,
-        floors: formData.floors ? Number(formData.floors) : undefined,
-        totalUnits: formData.totalUnits ? Number(formData.totalUnits) : undefined,
-        unitsPerFloor: toCount(formData.unitsPerFloor),
-        bedrooms: toCount(formData.bedrooms),
-        bathrooms: toCount(formData.bathrooms),
-        verandahs: toCount(formData.verandahs),
-        lifts: toCount(formData.lifts),
-        parking: toCount(formData.parking),
+        ...Object.fromEntries(
+          specKeys.map((key) => [key, formData[key]?.trim() || undefined]),
+        ),
         landArea: formData.landArea?.trim() || undefined,
         projectArea: formData.projectArea?.trim() || undefined,
         facing: formData.facing?.trim() || undefined,
@@ -307,6 +367,10 @@ export function ProjectDialog({
         floorPlans: formData.floorPlans
           .map((p) => ({ title: p.title.trim(), image: p.image.trim() }))
           .filter((p) => p.title && p.image),
+        progressUpdates: formData.progressUpdates
+          .map((u) => ({ ...u, note: u.note.trim() }))
+          .filter((u) => u.note && u.date),
+        description: formData.description.trim(),
         progress: Number(formData.progress || 0),
         order: Number(formData.order || 0),
         handoverDate: formData.handoverDate ? new Date(formData.handoverDate) : undefined,
@@ -318,9 +382,12 @@ export function ProjectDialog({
         body: JSON.stringify(payload),
       });
 
-      const resData = await res.json();
+      const resData: { message?: string; issues?: { path: string }[] } = await res.json();
 
       if (!res.ok) {
+        // Open the tab that holds the first invalid field
+        const field = resData.issues?.[0]?.path.split(".")[0];
+        if (field) setActiveTab(fieldTab[field] ?? "basic");
         throw new Error(resData.message || "Failed to save project");
       }
 
@@ -339,14 +406,14 @@ export function ProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={submitting ? () => { } : onOpenChange}>
-      <DialogContent className="max-w-3xl sm:max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
-        <DialogHeader className="p-6 pb-2 border-b border-border bg-muted/20">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[90dvh]">
+        <DialogHeader className="mb-0 p-4 pb-3 pr-12 sm:p-6 sm:pb-4 sm:pr-14 border-b border-border bg-muted/20">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="min-w-0">
               <DialogTitle className="text-xl font-bold text-navy-900">
                 {isEdit ? "Edit Project" : "Create New Project"}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="break-words">
                 {isEdit
                   ? `Updating details for "${project?.title}"`
                   : "Add a new residential flat share or land share development."}
@@ -355,17 +422,16 @@ export function ProjectDialog({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-4 sm:grid-cols-8 w-full h-auto p-1 bg-muted/60">
-              <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="features">Features</TabsTrigger>
-              <TabsTrigger value="amenities">Amenities</TabsTrigger>
-              <TabsTrigger value="floorplans">Floor Plans</TabsTrigger>
-              <TabsTrigger value="progress">Progress</TabsTrigger>
-              <TabsTrigger value="images">Images</TabsTrigger>
-              <TabsTrigger value="seo">SEO</TabsTrigger>
+            {/* Phones/tablets: one scrollable row. Desktop: all 8 tabs fit. */}
+            <TabsList className="flex w-full h-auto p-1 bg-muted/60 overflow-x-auto [scrollbar-width:none] lg:grid lg:grid-cols-8 lg:overflow-visible">
+              {projectTabs.map(({ value, label }) => (
+                <TabsTrigger key={value} value={value} className="shrink-0 px-3 py-2 lg:px-2">
+                  {label}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
             {/* TAB 1: BASIC INFO */}
@@ -373,7 +439,7 @@ export function ProjectDialog({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="title">Project Title *</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 min-[420px]:flex-row">
                     <Input
                       id="title"
                       placeholder="e.g. Upayon Green Valley"
@@ -413,7 +479,7 @@ export function ProjectDialog({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 min-[420px]:gap-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="status">Project Status</Label>
                     <Select
@@ -506,7 +572,7 @@ export function ProjectDialog({
                   />
                 </div>
 
-                <div className="flex items-center justify-between rounded-lg border border-border p-3 sm:col-span-2 bg-muted/10">
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3 sm:col-span-2 bg-muted/10">
                   <div>
                     <p className="text-sm font-semibold text-navy-900">Featured Showcase</p>
                     <p className="text-xs text-muted-foreground">
@@ -574,21 +640,19 @@ export function ProjectDialog({
                   />
                 </div>
 
-                {countFields.map(({ key, label }) => (
+                {specFields.map(({ key, label, placeholder }) => (
                   <div key={key} className="space-y-1.5">
                     <Label htmlFor={key}>{label}</Label>
                     <Input
                       id={key}
-                      type="number"
-                      min="0"
-                      placeholder="e.g. 3"
+                      type="text"
+                      maxLength={60}
+                      placeholder={placeholder}
                       value={formData[key] ?? ""}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          [key]: e.target.value === "" ? undefined : parseInt(e.target.value, 10),
-                        }))
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => ({ ...prev, [key]: value }));
+                      }}
                     />
                   </div>
                 ))}
@@ -613,40 +677,6 @@ export function ProjectDialog({
                     value={formData.facing || ""}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, facing: e.target.value }))
-                    }
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="floors">Total Building Floors</Label>
-                  <Input
-                    id="floors"
-                    type="number"
-                    min="1"
-                    placeholder="e.g. 12"
-                    value={formData.floors ?? ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        floors: e.target.value ? parseInt(e.target.value, 10) : undefined,
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="totalUnits">Total Residential Units</Label>
-                  <Input
-                    id="totalUnits"
-                    type="number"
-                    min="1"
-                    placeholder="e.g. 24"
-                    value={formData.totalUnits ?? ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        totalUnits: e.target.value ? parseInt(e.target.value, 10) : undefined,
-                      }))
                     }
                   />
                 </div>
@@ -678,16 +708,14 @@ export function ProjectDialog({
                   />
                 </div>
 
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="brochureUrl">Brochure PDF Download URL</Label>
-                  <Input
-                    id="brochureUrl"
-                    type="url"
-                    placeholder="https://example.com/brochures/project.pdf"
+                <div className="sm:col-span-2">
+                  <BrochureUploader
+                    label="Project Brochure (PDF)"
+                    description="Visitors get a “Download brochure” button on the project page."
+                    folder="projects"
+                    downloadName={formData.title}
                     value={formData.brochureUrl || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, brochureUrl: e.target.value }))
-                    }
+                    onChange={(url) => setFormData((prev) => ({ ...prev, brochureUrl: url }))}
                   />
                 </div>
 
@@ -695,13 +723,26 @@ export function ProjectDialog({
                   <Label htmlFor="mapEmbedUrl">Google Maps Embed URL</Label>
                   <Input
                     id="mapEmbedUrl"
-                    type="url"
-                    placeholder="https://www.google.com/maps/embed?..."
+                    type="text"
+                    placeholder="https://www.google.com/maps/embed?... (or paste the full <iframe> code)"
                     value={formData.mapEmbedUrl || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, mapEmbedUrl: e.target.value }))
-                    }
+                    onChange={(e) => {
+                      // Pasting Google's <iframe …> snippet keeps just its src link
+                      const raw = e.target.value;
+                      const value = raw.match(/src=["']([^"']+)["']/i)?.[1] ?? raw;
+                      setFormData((prev) => ({ ...prev, mapEmbedUrl: value }));
+                    }}
                   />
+                  {formData.mapEmbedUrl && !formData.mapEmbedUrl.includes("/maps/embed") ? (
+                    <p className="text-xs font-medium text-amber-700">
+                      This is a normal Maps link — Google won&apos;t show it inside the website. In Google
+                      Maps open the place → Share → <strong>Embed a map</strong> → Copy HTML, and paste it here.
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Google Maps → Share → Embed a map → Copy HTML, then paste it here.
+                    </p>
+                  )}
                 </div>
 
                 {/* Flat sizes chip list */}
@@ -770,7 +811,7 @@ export function ProjectDialog({
 
             {/* TAB 3: FEATURES */}
             <TabsContent value="features" className="space-y-4 pt-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h4 className="text-sm font-bold text-navy-900">Key Features</h4>
                   <p className="text-xs text-muted-foreground">
@@ -836,7 +877,7 @@ export function ProjectDialog({
 
             <TabsContent value="amenities" className="space-y-6 pt-4">
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h4 className="text-sm font-bold text-navy-900">Project Highlights</h4>
                     <p className="text-xs text-muted-foreground">
@@ -930,7 +971,7 @@ export function ProjectDialog({
 
             {/* TAB 4: FLOOR PLANS */}
             <TabsContent value="floorplans" className="space-y-4 pt-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h4 className="text-sm font-bold text-navy-900">Floor Layouts & Blueprints</h4>
                   <p className="text-xs text-muted-foreground">
@@ -1035,7 +1076,7 @@ export function ProjectDialog({
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h4 className="text-sm font-bold text-navy-900">Milestone Updates Log</h4>
                   <p className="text-xs text-muted-foreground">
@@ -1221,17 +1262,20 @@ export function ProjectDialog({
               </div>
             </TabsContent>
           </Tabs>
+          </div>
 
-          <DialogFooter className="border-t border-border pt-4">
+          {/* Footer stays visible below the scrolling fields */}
+          <DialogFooter className="mt-0 border-t border-border bg-muted/20 px-4 py-3 sm:px-6 sm:py-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
               {submitting && <LoaderCircle className="size-4 animate-spin mr-1" />}
               {isEdit ? "Save Changes" : "Create Project"}
             </Button>

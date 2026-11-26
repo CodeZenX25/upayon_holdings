@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { connectToDatabase } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/server";
 import { TestimonialModel } from "@/models";
-import { testimonialSchema } from "@/lib/validations";
+import { testimonialSchema, validationErrorBody } from "@/lib/validations";
 
 export async function GET() {
   const auth = await requirePermission("content:read");
@@ -34,13 +35,11 @@ export async function POST(request: Request) {
 
     const parsed = testimonialSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { message: "Validation error", errors: parsed.error.format() },
-        { status: 400 }
-      );
+      return NextResponse.json(validationErrorBody(parsed.error), { status: 400 });
     }
 
     const created = await TestimonialModel.create(parsed.data);
+    revalidatePath("/");
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
     console.error("Testimonials POST error:", error);

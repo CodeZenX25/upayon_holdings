@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, type UploadApiOptions } from "cloudinary";
 
 const isConfigured = Boolean(
   process.env.CLOUDINARY_CLOUD_NAME &&
@@ -17,7 +17,14 @@ if (isConfigured) {
 
 export { cloudinary, isConfigured };
 
-export type CloudinaryFolder = "projects" | "gallery" | "blog" | "testimonials" | "banners";
+export type CloudinaryFolder =
+  | "projects"
+  | "constructions"
+  | "gallery"
+  | "blog"
+  | "testimonials"
+  | "team"
+  | "banners";
 
 export interface UploadResult {
   url: string;
@@ -44,18 +51,39 @@ export function extractCloudinaryPublicId(
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
+    // Raw public_ids include the file extension; image/video ones don't.
+    const raw = pathname.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/);
+    if (raw) {
+      return { resourceType: "raw", publicId: decodeURIComponent(raw[1]) };
+    }
+
     const match = pathname.match(
-      /\/(image|video|raw)\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/
+      /\/(image|video)\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/
     );
     if (!match) return null;
 
     return {
-      resourceType: match[1] as "image" | "video" | "raw",
+      resourceType: match[1] as "image" | "video",
       publicId: match[2],
     };
   } catch {
     return null;
   }
+}
+
+/**
+ * Safe, unique public_id for a raw upload. Raw public_ids include the extension,
+ * which keeps the delivered URL ending in ".pdf".
+ */
+function rawPublicId(fileName = "file.pdf"): string {
+  const base =
+    fileName
+      .replace(/\.[^.]+$/, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "brochure";
+  return `${base}-${Date.now().toString(36)}.pdf`;
 }
 
 /**
@@ -65,8 +93,10 @@ export async function uploadToCloudinary(
   fileBuffer: Buffer,
   folder: CloudinaryFolder,
   options: {
-    resourceType?: "image" | "video" | "auto";
+    resourceType?: "image" | "video" | "raw" | "auto";
     isVideo?: boolean;
+    /** Original file name — used for raw files (PDFs) so the URL keeps a readable name + extension. */
+    fileName?: string;
   } = {}
 ): Promise<UploadResult> {
   if (!isConfigured) {
@@ -75,20 +105,30 @@ export async function uploadToCloudinary(
     );
   }
 
-  const isVideo = Boolean(options.isVideo || options.resourceType === "video");
-  const resourceType = isVideo ? "video" : "image";
+  const isRaw = options.resourceType === "raw";
+  const isVideo = !isRaw && Boolean(options.isVideo || options.resourceType === "video");
+  const resourceType = isRaw ? "raw" : isVideo ? "video" : "image";
   const targetFolder = `upayon/${folder}`;
 
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
+  // Raw files (PDF brochures) are stored as-is; images are converted to WebP.
+  const uploadOptions: UploadApiOptions = isRaw
+    ? {
+        folder: targetFolder,
+        resource_type: "raw",
+        public_id: rawPublicId(options.fileName),
+      }
+    : {
         folder: targetFolder,
         resource_type: resourceType,
         format: isVideo ? undefined : "webp", // auto-convert all images to webp
         transformation: isVideo
           ? undefined
           : [{ quality: "auto:good", fetch_format: "webp" }],
-      },
+      };
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      uploadOptions,
       (error, result) => {
         if (error || !result) {
           reject(error ?? new Error("Cloudinary upload failed"));

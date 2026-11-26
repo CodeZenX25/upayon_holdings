@@ -8,6 +8,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
+import { TeamSection } from "@/components/sections/team-section";
+import { getTeam } from "@/lib/team";
 
 export const metadata: Metadata = {
   title: "About Us | Upayon Holdings",
@@ -33,7 +35,9 @@ const principles = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const team = await getTeam();
+
   return (
     <>
       <section className="page-hero page-hero-about">
@@ -81,6 +85,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <TeamSection members={team.members} />
 
       <section className="about-purpose-section section-padding">
         <div className="page-container">

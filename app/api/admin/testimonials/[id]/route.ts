@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { connectToDatabase } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/server";
 import { TestimonialModel } from "@/models";
-import { testimonialSchema } from "@/lib/validations";
+import { testimonialSchema, validationErrorBody } from "@/lib/validations";
 import { deleteMultipleFromCloudinary } from "@/lib/cloudinary";
+
+/** Optional media fields: when cleared in the form they must be removed from the document. */
+const CLEARABLE = ["photo", "videoUrl", "name", "projectName", "message"] as const;
 
 export async function PUT(
   request: Request,
@@ -19,16 +23,19 @@ export async function PUT(
 
     const parsed = testimonialSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { message: "Validation error", errors: parsed.error.format() },
-        { status: 400 }
-      );
+      return NextResponse.json(validationErrorBody(parsed.error), { status: 400 });
     }
 
-    const updated = await TestimonialModel.findByIdAndUpdate(id, parsed.data, {
-      new: true,
-      runValidators: true,
-    });
+    const cleared = CLEARABLE.filter((key) => parsed.data[key] === undefined);
+    const set = Object.fromEntries(
+      Object.entries(parsed.data).filter(([, value]) => value !== undefined),
+    );
+    const unset = Object.fromEntries(cleared.map((key) => [key, 1]));
+    const updated = await TestimonialModel.findByIdAndUpdate(
+      id,
+      { $set: set, ...(cleared.length ? { $unset: unset } : {}) },
+      { returnDocument: "after", runValidators: true }
+    );
 
     if (!updated) {
       return NextResponse.json(
@@ -37,6 +44,7 @@ export async function PUT(
       );
     }
 
+    revalidatePath("/");
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Testimonial PUT [id] error:", error);
@@ -66,13 +74,12 @@ export async function DELETE(
       );
     }
 
-    // Delete photo from Cloudinary if set
-    if (deleted.photo) {
-      deleteMultipleFromCloudinary([deleted.photo]).catch((err) =>
-        console.error("Cloudinary testimonial photo cleanup error:", err)
-      );
-    }
+    // Remove uploaded photo / video from Cloudinary (YouTube links are skipped automatically)
+    deleteMultipleFromCloudinary([deleted.photo, deleted.videoUrl]).catch((err) =>
+      console.error("Cloudinary testimonial media cleanup error:", err)
+    );
 
+    revalidatePath("/");
     return NextResponse.json({
       message: "Testimonial deleted successfully.",
     });

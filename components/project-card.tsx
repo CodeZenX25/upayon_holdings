@@ -14,16 +14,16 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { ProjectView } from "@/lib/projects";
-import { availabilityLabel, formatHandover, statusLabel } from "@/lib/project-labels";
+import { availabilityLabel, formatHandover, specLabel, statusLabel } from "@/lib/project-labels";
 
 function cardSpecs(project: ProjectView): { Icon: LucideIcon; label: string }[] {
   const specs: { Icon: LucideIcon; label: string }[] = [];
-  if (project.bedrooms) specs.push({ Icon: BedDouble, label: `${project.bedrooms} Beds` });
-  if (project.bathrooms) specs.push({ Icon: Bath, label: `${project.bathrooms} Baths` });
+  if (project.bedrooms) specs.push({ Icon: BedDouble, label: specLabel(project.bedrooms, "Beds") });
+  if (project.bathrooms) specs.push({ Icon: Bath, label: specLabel(project.bathrooms, "Baths") });
   if (project.projectArea) specs.push({ Icon: Maximize2, label: project.projectArea });
-  if (project.verandahs) specs.push({ Icon: Sun, label: `${project.verandahs} Verandahs` });
-  if (project.parking) specs.push({ Icon: Car, label: `${project.parking} Parking` });
-  if (project.floors) specs.push({ Icon: Building2, label: `${project.floors} Floors` });
+  if (project.verandahs) specs.push({ Icon: Sun, label: specLabel(project.verandahs, "Verandahs") });
+  if (project.parking) specs.push({ Icon: Car, label: specLabel(project.parking, "Parking") });
+  if (project.floors) specs.push({ Icon: Building2, label: specLabel(project.floors, "Floors") });
   if (project.landArea) specs.push({ Icon: Layers, label: project.landArea });
   if (project.handoverDate) {
     specs.push({ Icon: CalendarDays, label: formatHandover(project.handoverDate) });

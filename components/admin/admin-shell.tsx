@@ -19,6 +19,8 @@ import {
   Shield,
   UserCheck,
   Film,
+  HardHat,
+  UsersRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +55,11 @@ const navItems = [
     icon: Building2,
   },
   {
+    title: "Construction",
+    href: "/admin/constructions",
+    icon: HardHat,
+  },
+  {
     title: "Gallery",
     href: "/admin/gallery",
     icon: Images,
@@ -61,6 +68,11 @@ const navItems = [
     title: "Blog",
     href: "/admin/blog",
     icon: BookOpen,
+  },
+  {
+    title: "Team",
+    href: "/admin/team",
+    icon: UsersRound,
   },
   {
     title: "Testimonials",

@@ -59,10 +59,10 @@ export function SiteHeader() {
                   isActive(link.href)
                     ? transparent
                       ? "bg-white/15"
-                      : "bg-navy-900 text-white"
+                      : "bg-brand-purple text-white"
                     : transparent
                       ? "text-white/85 hover:bg-white/10 hover:text-white"
-                      : "text-navy-900/75 hover:bg-navy-900/5 hover:text-navy-900",
+                      : "text-navy-900/75 hover:bg-brand-purple/10 hover:text-brand-purple",
                 )}
               >
                 {link.label}
@@ -78,7 +78,7 @@ export function SiteHeader() {
               <span
                 className={cn(
                   "grid size-9 place-items-center rounded-full",
-                  transparent ? "bg-white/15" : "bg-navy-900/5",
+                  transparent ? "bg-white/15" : "bg-brand-purple/10 text-brand-purple",
                 )}
               >
                 <Phone className="size-4" aria-hidden="true" />
@@ -90,7 +90,12 @@ export function SiteHeader() {
             </a>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-gold px-5 py-3 text-[13px] font-bold uppercase tracking-[0.08em] text-navy-950 transition hover:-translate-y-0.5 hover:bg-[#e6c47d]"
+              className={cn(
+                "inline-flex items-center gap-2 whitespace-nowrap rounded-full px-5 py-3 text-[13px] font-bold uppercase tracking-[0.08em] transition hover:-translate-y-0.5",
+                transparent
+                  ? "bg-white text-brand-purple hover:bg-white/90"
+                  : "bg-brand-purple text-white hover:bg-navy-900",
+              )}
             >
               <CalendarDays className="size-4" aria-hidden="true" />
               Book a visit
@@ -101,7 +106,7 @@ export function SiteHeader() {
             type="button"
             className={cn(
               "grid size-11 place-items-center rounded-full xl:hidden",
-              transparent ? "bg-white/15" : "bg-navy-900 text-white",
+              transparent ? "bg-white/15" : "bg-brand-purple text-white",
             )}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
@@ -129,14 +134,19 @@ export function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-2xl px-4 py-3 text-[17px] font-semibold text-navy-900 hover:bg-paper"
+                className={cn(
+                  "rounded-2xl px-4 py-3 text-[17px] font-semibold",
+                  isActive(link.href)
+                    ? "bg-brand-purple/10 text-brand-purple"
+                    : "text-navy-900 hover:bg-paper",
+                )}
               >
                 {link.label}
               </Link>
             ))}
             <a
               href={siteConfig.phoneHref}
-              className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-navy-900 px-4 py-3.5 font-semibold text-white"
+              className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-brand-purple px-4 py-3.5 font-semibold text-white"
             >
               <Phone className="size-4" aria-hidden="true" /> {siteConfig.phone}
             </a>

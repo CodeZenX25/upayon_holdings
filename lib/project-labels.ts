@@ -28,6 +28,14 @@ export const ownershipLabel: Record<ProjectType, string> = {
   "flat-share": "Flat share",
 };
 
+/**
+ * Label for a spec value that may be a plain number or free text.
+ * "3" → "3 Beds"; "G+8" or "3 (master + 2)" → shown as written.
+ */
+export function specLabel(value: string, unit: string): string {
+  return /^\d+(\.\d+)?$/.test(value) ? `${value} ${unit}` : value;
+}
+
 export function formatHandover(iso: string): string {
   return new Date(iso).toLocaleDateString("en-GB", {
     month: "long",

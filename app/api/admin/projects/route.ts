@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { requirePermission } from "@/lib/auth/server";
 import { ProjectModel } from "@/models";
-import { projectSchema } from "@/lib/validations";
+import { projectSchema, validationErrorBody } from "@/lib/validations";
 import { revalidateProjectPages } from "@/lib/projects";
 
 export async function GET(request: NextRequest) {
@@ -77,10 +77,7 @@ export async function POST(request: Request) {
 
     const parsed = projectSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { message: "Validation error", errors: parsed.error.format() },
-        { status: 400 }
-      );
+      return NextResponse.json(validationErrorBody(parsed.error), { status: 400 });
     }
 
     // Check slug uniqueness

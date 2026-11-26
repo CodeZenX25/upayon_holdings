@@ -10,8 +10,12 @@ import {
   Trash2,
   LoaderCircle,
   Building,
+  Play,
+  Video,
+  X,
 } from "lucide-react";
 import { ImageUploader } from "@/components/admin/image-uploader";
+import { parseVideo, youtubeId } from "@/lib/video";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,13 +45,117 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export interface TestimonialData {
   _id?: string;
-  name: string;
+  name?: string;
   photo?: string;
-  projectName: string;
-  message: string;
+  projectName?: string;
+  message?: string;
   rating: number;
+  videoUrl?: string;
   isActive: boolean;
   createdAt?: string;
+}
+
+/** Set to true to let admins add video testimonials (YouTube link or upload) again. */
+const VIDEO_TESTIMONIALS_ENABLED = false;
+
+/** Video testimonial: paste a YouTube link or upload a video file to Cloudinary. */
+function VideoField({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [mode, setMode] = React.useState<"youtube" | "upload">(
+    value && !youtubeId(value) ? "upload" : "youtube",
+  );
+  const parsed = parseVideo(value);
+  const showYoutubeError = mode === "youtube" && value.trim() !== "" && !youtubeId(value);
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border p-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-navy-900">
+            <Video className="size-4 text-brand-purple" />
+            Video testimonial (optional)
+          </p>
+          <p className="text-xs text-muted-foreground">Shown on its own on the website, with a play button.</p>
+        </div>
+        <div className="inline-flex rounded-md bg-muted p-0.5 text-xs font-semibold">
+          {(["youtube", "upload"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`rounded px-3 py-1.5 transition-colors ${
+                mode === m ? "bg-background text-navy-900 shadow-xs" : "text-muted-foreground hover:text-navy-900"
+              }`}
+            >
+              {m === "youtube" ? "YouTube link" : "Upload video"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {mode === "youtube" ? (
+        <div className="space-y-1.5">
+          <Input
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=… or https://youtu.be/…"
+            value={value.includes("res.cloudinary.com") ? "" : value}
+            onChange={(e) => onChange(e.target.value.trim())}
+          />
+          {showYoutubeError && (
+            <p className="text-xs font-medium text-destructive">
+              That isn&apos;t a YouTube video link. Copy the link from YouTube → Share.
+            </p>
+          )}
+        </div>
+      ) : (
+        <ImageUploader
+          folder="testimonials"
+          allowVideo
+          description="MP4 / WebM, max 50MB"
+          value={value.includes("res.cloudinary.com") ? value : ""}
+          onChange={(val) => onChange(Array.isArray(val) ? val[0] ?? "" : val)}
+        />
+      )}
+
+      {parsed && (
+        <div className="flex items-center gap-3 rounded-md bg-muted/40 p-2">
+          <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded bg-navy-950">
+            {parsed.thumbnail && (
+              <img src={parsed.thumbnail} alt="" className="size-full object-cover" />
+            )}
+            <span className="absolute inset-0 grid place-items-center">
+              <span className="grid size-7 place-items-center rounded-full bg-white/90 text-brand-purple">
+                <Play className="ml-0.5 size-3.5 fill-current" />
+              </span>
+            </span>
+          </div>
+          <div className="min-w-0 flex-1 text-xs">
+            <p className="font-semibold text-navy-900">
+              {parsed.kind === "youtube" ? "YouTube video" : "Uploaded video"} ready
+            </p>
+            <a
+              href={parsed.kind === "youtube" ? `https://www.youtube.com/watch?v=${parsed.id}` : parsed.src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Preview
+            </a>
+          </div>
+          <Button
+            type="button"
+            size="icon-xs"
+            variant="ghost"
+            onClick={() => onChange("")}
+            className="text-destructive hover:bg-destructive/10"
+            title="Remove video"
+            aria-label="Remove video"
+          >
+            <X className="size-3.5" />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 const defaultTestimonial: TestimonialData = {
@@ -100,23 +208,35 @@ export function TestimonialsView() {
 
   const openEditDialog = (item: TestimonialData) => {
     setEditingItem(item);
-    setFormData(item);
+    setFormData({
+      ...item,
+      name: item.name ?? "",
+      projectName: item.projectName ?? "",
+      message: item.message ?? "",
+      rating: item.rating ?? 5,
+    });
     setDialogOpen(true);
   };
 
+  const hasVideo = Boolean(formData.videoUrl?.trim());
+  const req = hasVideo ? "(optional)" : "*";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      toast.error("Client name is required");
-      return;
-    }
-    if (!formData.projectName.trim()) {
-      toast.error("Project name is required");
-      return;
-    }
-    if (!formData.message.trim()) {
-      toast.error("Testimonial review message is required");
-      return;
+    // Video testimonials only need the video; written ones need name, project and quote.
+    if (!formData.videoUrl?.trim()) {
+      if (!formData.name?.trim()) {
+        toast.error("Client name is required (or add a video)");
+        return;
+      }
+      if (!formData.projectName?.trim()) {
+        toast.error("Project name is required (or add a video)");
+        return;
+      }
+      if (!formData.message?.trim()) {
+        toast.error("Testimonial quote is required (or add a video)");
+        return;
+      }
     }
 
     try {
@@ -269,7 +389,7 @@ export function TestimonialsView() {
                           {t.photo ? (
                             <img
                               src={t.photo}
-                              alt={t.name}
+                              alt={t.name ?? ""}
                               className="size-full object-cover"
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display = "none";
@@ -277,19 +397,28 @@ export function TestimonialsView() {
                             />
                           ) : (
                             <div className="flex size-full items-center justify-center font-bold text-xs text-primary bg-navy-50">
-                              {t.name.charAt(0)}
+                              {t.name ? t.name.charAt(0) : <Video className="size-4" />}
                             </div>
                           )}
                         </div>
                         <span className="font-semibold text-xs text-navy-900 whitespace-nowrap">
-                          {t.name}
+                          {t.name || "Video testimonial"}
                         </span>
+                        {t.videoUrl && (
+                          <span
+                            className="inline-flex items-center gap-1 rounded bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-bold text-brand-purple"
+                            title="Has a video testimonial"
+                          >
+                            <Video className="size-3" />
+                            Video
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       <span className="flex items-center gap-1 font-medium text-navy-900">
                         <Building className="size-3 text-muted-foreground" />
-                        {t.projectName}
+                        {t.projectName || "—"}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -307,9 +436,11 @@ export function TestimonialsView() {
                       </div>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
-                      <p className="line-clamp-2 italic leading-relaxed">
-                        &ldquo;{t.message}&rdquo;
-                      </p>
+                      {t.message ? (
+                        <p className="line-clamp-2 italic leading-relaxed">&ldquo;{t.message}&rdquo;</p>
+                      ) : (
+                        <p className="text-muted-foreground">Video only</p>
+                      )}
                     </TableCell>
                     <TableCell>
                       <button
@@ -368,32 +499,46 @@ export function TestimonialsView() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Video testimonials are switched off for now; an existing video still shows so it can be removed. */}
+            {(VIDEO_TESTIMONIALS_ENABLED || hasVideo) && (
+              <VideoField
+                value={formData.videoUrl ?? ""}
+                onChange={(url) => setFormData((prev) => ({ ...prev, videoUrl: url }))}
+              />
+            )}
+
+            {hasVideo && (
+              <p className="rounded-md bg-brand-purple/10 px-3 py-2 text-xs font-medium text-brand-purple">
+                Only the video is shown on the website. The details below are optional — for your records.
+              </p>
+            )}
+
             <div className="space-y-1.5">
-              <Label htmlFor="tName">Client Full Name *</Label>
+              <Label htmlFor="tName">Client Full Name {req}</Label>
               <Input
                 id="tName"
                 placeholder="e.g. Engr. Tanvir Ahmed"
-                value={formData.name}
+                value={formData.name ?? ""}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                required
+                required={!hasVideo}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="tProject">Property Project Attributed *</Label>
+              <Label htmlFor="tProject">Property Project Attributed {req}</Label>
               <Input
                 id="tProject"
                 placeholder="e.g. Upayon Green Valley, Bashundhara"
-                value={formData.projectName}
+                value={formData.projectName ?? ""}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
                     projectName: e.target.value,
                   }))
                 }
-                required
+                required={!hasVideo}
               />
             </div>
 
@@ -430,16 +575,16 @@ export function TestimonialsView() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="tMessage">Testimonial Quote *</Label>
+              <Label htmlFor="tMessage">Testimonial Quote {req}</Label>
               <Textarea
                 id="tMessage"
                 rows={3}
                 placeholder="Client comments about transparency, construction pace, share model..."
-                value={formData.message}
+                value={formData.message ?? ""}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, message: e.target.value }))
                 }
-                required
+                required={!hasVideo}
               />
             </div>
 

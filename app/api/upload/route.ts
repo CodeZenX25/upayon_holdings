@@ -9,6 +9,14 @@ import {
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
+const MAX_PDF_SIZE = 20 * 1024 * 1024;
+const PDF_TYPE = "application/pdf";
+
+/** Real PDFs start with "%PDF-" — don't trust the browser-supplied MIME type alone. */
+async function isPdf(file: File): Promise<boolean> {
+  const head = new Uint8Array(await file.slice(0, 5).arrayBuffer());
+  return String.fromCharCode(...head) === "%PDF-";
+}
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -22,6 +30,8 @@ const ALLOWED_VIDEO_TYPES = new Set([
 ]);
 const VALID_FOLDERS: Set<CloudinaryFolder> = new Set([
   "projects",
+  "constructions",
+  "team",
   "gallery",
   "blog",
   "testimonials",
@@ -69,9 +79,18 @@ export async function POST(request: NextRequest) {
 
     // Validate size and mime types
     for (const file of files) {
-      const isImage = ALLOWED_IMAGE_TYPES.has(file.type.toLowerCase());
-      const isVideo = ALLOWED_VIDEO_TYPES.has(file.type.toLowerCase());
-      const limit = isVideo ? MAX_VIDEO_SIZE : MAX_FILE_SIZE;
+      const type = file.type.toLowerCase();
+      const isImage = ALLOWED_IMAGE_TYPES.has(type);
+      const isVideo = ALLOWED_VIDEO_TYPES.has(type);
+      const isPdfFile = type === PDF_TYPE;
+      const limit = isVideo ? MAX_VIDEO_SIZE : isPdfFile ? MAX_PDF_SIZE : MAX_FILE_SIZE;
+
+      if (isPdfFile && !(await isPdf(file))) {
+        return NextResponse.json(
+          { message: `"${file.name}" is not a valid PDF file.` },
+          { status: 400 }
+        );
+      }
 
       if (file.size > limit) {
         return NextResponse.json(
@@ -82,10 +101,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (!isImage && !isVideo) {
+      if (!isImage && !isVideo && !isPdfFile) {
         return NextResponse.json(
           {
-            message: `Unsupported file type "${file.type}". Allowed formats: JPG, PNG, WEBP (and MP4/WebM for gallery videos).`,
+            message: `Unsupported file type "${file.type}". Allowed formats: JPG, PNG, WEBP, MP4/WebM videos and PDF brochures.`,
           },
           { status: 400 }
         );
@@ -96,7 +115,12 @@ export async function POST(request: NextRequest) {
     const uploadPromises = files.map(async (file) => {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const isVideo = ALLOWED_VIDEO_TYPES.has(file.type.toLowerCase());
+      const type = file.type.toLowerCase();
+      const isVideo = ALLOWED_VIDEO_TYPES.has(type);
+
+      if (type === PDF_TYPE) {
+        return uploadToCloudinary(buffer, folder, { resourceType: "raw", fileName: file.name });
+      }
 
       return uploadToCloudinary(buffer, folder, {
         isVideo,

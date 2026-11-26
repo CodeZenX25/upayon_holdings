@@ -33,8 +33,10 @@ import {
   categoryLabel,
   formatHandover,
   ownershipLabel,
+  specLabel,
   statusLabel,
 } from "@/lib/project-labels";
+import { brochureDownloadHref, brochureFileName, isUploadedBrochure } from "@/lib/brochure";
 
 export const revalidate = 300;
 
@@ -66,7 +68,8 @@ function isSafeMapEmbed(url?: string): url is string {
     return (
       parsed.protocol === "https:" &&
       ["www.google.com", "maps.google.com"].includes(parsed.hostname) &&
-      parsed.pathname.startsWith("/maps")
+      // Only /maps/embed links can be framed — share/directions links are blocked by Google.
+      parsed.pathname.startsWith("/maps/embed")
     );
   } catch {
     return false;
@@ -80,13 +83,13 @@ function areaLabel(project: ProjectView) {
 function quickSpecs(project: ProjectView) {
   const area = areaLabel(project);
   const specs: { Icon: LucideIcon; label: string }[] = [];
-  if (project.bedrooms) specs.push({ Icon: BedDouble, label: `${project.bedrooms} Beds` });
-  if (project.bathrooms) specs.push({ Icon: Bath, label: `${project.bathrooms} Baths` });
+  if (project.bedrooms) specs.push({ Icon: BedDouble, label: specLabel(project.bedrooms, "Beds") });
+  if (project.bathrooms) specs.push({ Icon: Bath, label: specLabel(project.bathrooms, "Baths") });
   if (area) specs.push({ Icon: Maximize2, label: area });
-  if (project.verandahs) specs.push({ Icon: Sun, label: `${project.verandahs} Verandahs` });
-  if (project.parking) specs.push({ Icon: Car, label: `${project.parking} Parking` });
-  if (project.floors) specs.push({ Icon: Building2, label: `${project.floors} Floors` });
-  if (project.lifts) specs.push({ Icon: Layers, label: `${project.lifts} Lifts` });
+  if (project.verandahs) specs.push({ Icon: Sun, label: specLabel(project.verandahs, "Verandahs") });
+  if (project.parking) specs.push({ Icon: Car, label: specLabel(project.parking, "Parking") });
+  if (project.floors) specs.push({ Icon: Building2, label: specLabel(project.floors, "Floors") });
+  if (project.lifts) specs.push({ Icon: Layers, label: specLabel(project.lifts, "Lifts") });
   return specs.slice(0, 6);
 }
 
@@ -368,8 +371,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               </div>
               {project.brochureUrl && (
                 <a
-                  href={project.brochureUrl}
-                  target="_blank"
+                  href={brochureDownloadHref(project.brochureUrl, project.title)}
+                  download={brochureFileName(project.title)}
+                  // External (pasted) links can't be force-downloaded — open them in a new tab instead
+                  target={isUploadedBrochure(project.brochureUrl) ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   className="mt-4 flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3.5 text-[15px] font-semibold text-navy-900 transition hover:border-brand-purple hover:text-brand-purple"
                 >

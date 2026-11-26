@@ -20,7 +20,24 @@ const projectAmenitiesSchema = z.object({
   nearby: amenityList,
 });
 
-const optionalCount = z.number().int().min(0).max(10000).optional();
+/**
+ * Spec value that may mix numbers and text, e.g. "12", "G+8", "2 (covered)".
+ * Numbers are accepted for older clients and stored as text; blank → undefined.
+ */
+const optionalSpec = z
+  .union([z.string(), z.number()])
+  .transform((value) => String(value).trim())
+  .pipe(z.string().max(60, "Keep this under 60 characters."))
+  .transform((value) => value || undefined)
+  .optional();
+
+/** Accepts a Google Maps embed URL, or the whole `<iframe src="…">` snippet copied from Google Maps. */
+const mapEmbedSchema = z
+  .string()
+  .trim()
+  .transform((value) => value.match(/src=["']([^"']+)["']/i)?.[1] ?? value)
+  .pipe(z.string().url("Paste the Google Maps embed link (starts with https://)."))
+  .optional();
 
 const projectFloorPlanSchema = z.object({
   title: z.string().trim().min(1),
@@ -51,20 +68,20 @@ export const projectSchema = z.object({
   location: z.string().trim().min(1),
   address: z.string().trim().min(1),
   shortDescription: z.string().trim().min(1).max(500),
-  description: z.string().min(1),
+  description: z.string().default(""),
   coverImage: z.string().trim().url(),
   images: z.array(z.string().trim().url()).default([]),
   videos: z.array(z.string().trim().url()).max(20).default([]),
   landArea: z.string().trim().optional(),
   projectArea: z.string().trim().max(120).optional(),
-  bedrooms: optionalCount,
-  bathrooms: optionalCount,
-  verandahs: optionalCount,
-  lifts: optionalCount,
-  parking: optionalCount,
-  unitsPerFloor: optionalCount,
-  floors: z.number().int().min(0).optional(),
-  totalUnits: z.number().int().min(0).optional(),
+  bedrooms: optionalSpec,
+  bathrooms: optionalSpec,
+  verandahs: optionalSpec,
+  lifts: optionalSpec,
+  parking: optionalSpec,
+  unitsPerFloor: optionalSpec,
+  floors: optionalSpec,
+  totalUnits: optionalSpec,
   flatSizes: z.array(z.string().trim().min(1)).default([]),
   facing: z.string().trim().optional(),
   handoverDate: z.coerce.date().optional(),
@@ -78,10 +95,10 @@ export const projectSchema = z.object({
     nearby: [],
   }),
   floorPlans: z.array(projectFloorPlanSchema).default([]),
-  mapEmbedUrl: z.string().trim().url().optional(),
+  mapEmbedUrl: mapEmbedSchema,
   progress: z.number().int().min(0).max(100).default(0),
   progressUpdates: z.array(projectProgressUpdateSchema).default([]),
-  brochureUrl: z.string().trim().url().optional(),
+  brochureUrl: z.string().trim().url("Brochure must be a full link (https://…).").optional(),
   isFeatured: z.boolean().default(false),
   order: z.number().int().default(0),
   seo: projectSeoSchema.default({}),

@@ -56,31 +56,45 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="about-story section-padding">
-        <div className="page-container about-story-grid">
-          <div className="about-story-image" role="img" aria-label="Modern residential architecture surrounded by greenery" />
-          <div className="about-story-copy">
-            <p className="eyebrow">Our story</p>
-            <h2>
-              A more personal way
-              <br />
-              to find your place.
+      {/* Our story — text only: heading left, story right */}
+      <section className="bg-white py-20 text-navy-900 sm:py-24 xl:py-28">
+        <div className="mx-auto grid max-w-[1240px] gap-8 px-5 md:px-8 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-5">
+            <p className="mb-5 inline-flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.28em] text-brand-purple sm:text-[13px] md:text-[14px]">
+              <span aria-hidden="true" className="h-0.5 w-10 bg-brand-purple sm:w-12" />
+              Our story
+            </p>
+            <h2 className="text-[34px] font-extrabold leading-[1.1] tracking-tight min-[400px]:text-[38px] sm:text-[48px] lg:text-[52px]">
+              A more personal way to{" "}
+              <span className="font-serif font-semibold italic text-brand-purple">find your place.</span>
             </h2>
-            <p>
-              Upayon Holdings is a Dhaka-based real estate company focused on
-              land-share and flat-share opportunities. We believe the path to a
-              home should feel considered, informed, and grounded in a real
-              conversation.
-            </p>
-            <p>
-              We bring care to the details that shape each project and take
-              time to help people understand the options in front of them.
-              From the first conversation to the next important step, our
-              promise is to be approachable, thoughtful, and clear.
-            </p>
-            <Link className="text-link" href="/projects">
-              Discover our projects{" "}
-              <ArrowUpRight size={15} aria-hidden="true" />
+          </div>
+
+          <div className="lg:col-span-7 lg:pt-12">
+            <div className="space-y-5 border-l-2 border-brand-purple pl-5 text-[17px] leading-[1.8] text-slate-600 sm:pl-7 sm:text-[18px]">
+              <p className="text-[19px] font-medium leading-[1.7] text-navy-900 sm:text-[21px]">
+                Upayon Holdings is a Dhaka-based real estate company focused on land-share and flat-share
+                opportunities.
+              </p>
+              <p>
+                We believe the path to a home should feel considered, informed, and grounded in a real
+                conversation.
+              </p>
+              <p>
+                We bring care to the details that shape each project and take time to help people understand the
+                options in front of them. From the first conversation to the next important step, our promise is to
+                be approachable, thoughtful, and clear.
+              </p>
+            </div>
+            <Link
+              href="/projects"
+              className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-brand-purple px-7 py-4 text-[13.5px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-navy-900 sm:ml-7"
+            >
+              Discover our projects
+              <ArrowUpRight
+                className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
             </Link>
           </div>
         </div>

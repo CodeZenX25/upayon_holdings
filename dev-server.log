@@ -75,3 +75,4 @@
  GET /projects/qa-test-project 200 in 504ms
  GET /icon.svg?icon.65c65bde.svg 200 in 447ms
  ⨯ upstream image response failed for https://res.cloudinary.com/demo/image/upload/man.jpg 404
+ GET / 200 in 288ms

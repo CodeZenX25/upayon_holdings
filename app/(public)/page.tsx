@@ -41,7 +41,7 @@ export default async function HomePage() {
       <Panel bg="bg-paper">
         <LatestProjects projects={latestProjects} />
       </Panel>
-      <Panel bg="bg-navy-900">
+      <Panel bg="bg-paper">
         <Features />
       </Panel>
       <Panel bg="bg-white">

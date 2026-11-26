@@ -36,7 +36,10 @@
       "Bash(npx tsx *)",
       "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1; if \\($c\\) { Stop-Process -Id $c.OwningProcess -Force -Confirm:$false }; Start-Sleep -Seconds 2; npm run build 2>&1 | Select-String -Pattern \"Compiled|Failed|rror|Generating|projects\" | Select-Object -First 20)",
       "PowerShell(Remove-Item -Recurse -Force \".next\" -Confirm:$false; Start-Process -WindowStyle Hidden -FilePath \"cmd.exe\" -ArgumentList \"/c\",\"npm run dev > dev-server.log 2>&1\" -WorkingDirectory \\(Get-Location\\).Path; Start-Sleep -Seconds 12; foreach \\($u in \"/\", \"/projects\", \"/projects/demo-gulshan-residences\", \"/admin/login\"\\) { try { $r = Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 \"http://localhost:3000$u\"; \"$u $\\($r.StatusCode\\)\" } catch { \"$u ERR $\\($_.Exception.Response.StatusCode.value__\\)\" } })",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 90 http://localhost:3000/projects)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 90 http://localhost:3000/projects)",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"features.tsx\" ; \"exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"features.tsx\"; npx eslint components/sections/features.tsx; \"exit: $LASTEXITCODE\")",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-String -Pattern \"features.tsx|page.tsx\"; npx eslint components/sections/features.tsx \"app/\\(public\\)/page.tsx\"; \"exit: $LASTEXITCODE\")"
     ]
   }
 }

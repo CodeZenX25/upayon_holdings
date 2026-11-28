@@ -4,6 +4,14 @@ const nextConfig: NextConfig = {
   // Lets a production audit build run alongside `next dev` (e.g. NEXT_DIST_DIR=.next-audit).
   distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
+  async redirects() {
+    // Old-style index URLs → the home page, so they never show up as duplicate pages.
+    return ["/index.html", "/index.htm", "/index.php", "/home"].map((source) => ({
+      source,
+      destination: "/",
+      permanent: true,
+    }));
+  },
   async headers() {
     return [
       {

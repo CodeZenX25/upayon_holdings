@@ -151,10 +151,10 @@ export function BannerHero({
             />
           ) : canOptimizeImage(image) ? (
             // The banner is the largest thing on screen — load it first, resized and compressed.
-            <Image src={image} alt="" fill priority sizes="100vw" quality={70} className="object-cover" />
+            <Image src={image} alt={`${title} — Upayon Holdings, real estate in Dhaka`} fill priority sizes="100vw" quality={70} className="object-cover" />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" fetchPriority="high" decoding="async" className="size-full object-cover" />
+            <img src={image} alt={`${title} — Upayon Holdings, real estate in Dhaka`} fetchPriority="high" decoding="async" className="size-full object-cover" />
           )}
         </div>
         <div className="absolute inset-0 bg-black/45" />

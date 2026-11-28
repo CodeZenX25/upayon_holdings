@@ -167,7 +167,7 @@ export function GalleryShowcase({ items }: { items: PublicGalleryItem[] }) {
                   <div data-gal-zoom className="relative size-full">
                     <Image
                       src={item.image}
-                      alt=""
+                      alt={item.title}
                       fill
                       sizes={tile.sizes}
                       className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"

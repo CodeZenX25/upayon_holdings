@@ -26,7 +26,9 @@ Use `npm run build` for a production build and `npm run lint` for ESLint.
 
 - `NEXT_PUBLIC_SITE_URL` — the live domain, e.g. `https://upayonholdings.com`.
   Canonical links, `sitemap.xml`, `robots.txt`, social previews and structured
-  data all use it. Without it they point at `localhost`.
+  data all use it. On Vercel, if it is missing (or set to `localhost`), the
+  project's Vercel production domain is used instead. Set it once you have a
+  custom domain.
 - `GOOGLE_SITE_VERIFICATION` (optional) — the code from Google Search Console's
   "HTML tag" verification method.
 - `BING_SITE_VERIFICATION` (optional) — the code from Bing Webmaster Tools.

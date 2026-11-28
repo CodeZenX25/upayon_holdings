@@ -23,10 +23,11 @@ export function AboutIntro() {
 
       <div data-reveal className="space-y-6 text-[16px] leading-[1.85] text-slate-600 md:text-[17px]">
         <p>
-          Upayon Holdings is a Dhaka-based real estate developer helping
-          families and investors own property with confidence. Through land
-          share and flat share ownership, we make quality homes in prime
-          locations accessible without the usual complexity.
+          Upayon Holdings is a real estate developer in Dhaka, building spaces
+          that inspire. We help families and investors buy flats and land share
+          in Dhaka with confidence. Through land share and flat share ownership,
+          we make quality homes in prime locations accessible without the usual
+          complexity.
         </p>
         <p>
           Every project is built on careful planning, sound engineering and

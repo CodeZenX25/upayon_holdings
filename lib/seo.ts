@@ -5,14 +5,27 @@ import { siteConfig } from "@/lib/site-config";
  * Set NEXT_PUBLIC_SITE_URL to the live domain (e.g. https://upayonholdings.com)
  * in production so canonical URLs, sitemap and social previews point there.
  */
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+function resolveSiteUrl() {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const onVercel = Boolean(process.env.VERCEL);
+  // A localhost value copied into the hosting env would make Google see every page as a duplicate of localhost.
+  if (configured && !(onVercel && /localhost|127\.0\.0\.1/.test(configured))) return configured;
+  // Vercel sets these automatically: the production domain, then the per-deployment URL.
+  const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (vercelHost) return `https://${vercelHost}`;
+  return "http://localhost:3000";
+}
+
+export const siteUrl = resolveSiteUrl().replace(/\/+$/, "");
 
 export const seo = {
   name: "Upayon Holdings",
   shortName: "Upayon Holdings",
-  defaultTitle: "Upayon Holdings | Land Share, Flat Share & Apartments in Dhaka",
+  // Kept under ~580px (Google's cut-off) and without repeated words.
+  defaultTitle: "Upayon Holdings | Flats & Land Share in Dhaka",
+  // Kept under ~155 characters so Google shows it in full.
   description:
-    "Upayon Holdings is a Dhaka real estate company offering land share, flat share and ready & under-construction apartments in Mirpur DOHS, Bashundhara, Uttara and Purbachal — with flexible instalment plans.",
+    "Buy flats and land share in Dhaka with Upayon Holdings. Real estate projects in Mirpur DOHS, Bashundhara and Uttara with easy instalments.",
   /** Default social preview image (1600×1600 render of an Upayon building). */
   ogImage: "/images/showcase/front-view.jpg",
   /**

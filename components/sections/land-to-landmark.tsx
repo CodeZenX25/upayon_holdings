@@ -268,7 +268,7 @@ export function LandToLandmark() {
               <div data-ll-blueprint aria-hidden="true" className="absolute inset-0 bg-white opacity-0">
                 <Image
                   src={SRC}
-                  alt=""
+                  alt="Architectural sketch of an Upayon apartment building"
                   fill
                   sizes="(min-width: 1024px) 700px, 100vw"
                   className="object-cover opacity-45 mix-blend-multiply brightness-[1.35] contrast-[1.8] grayscale"
@@ -289,7 +289,7 @@ export function LandToLandmark() {
 
               {/* The real building (clipped bottom-up while it is "built") */}
               <div data-ll-photo className="absolute inset-0">
-                <Image src={SRC} alt="" fill sizes="(min-width: 1024px) 700px, 100vw" className="object-cover" />
+                <Image src={SRC} alt="Upayon Holdings residential apartment building in Dhaka" fill sizes="(min-width: 1024px) 700px, 100vw" className="object-cover" />
               </div>
 
               {/* Overlays, in the render's own 1600×1600 coordinates */}

@@ -326,7 +326,7 @@ function VideoCard({
       {poster ? (
         <Image
           src={poster}
-          alt=""
+          alt="Client video testimonial for Upayon Holdings"
           fill
           sizes="(min-width: 1024px) 700px, 80vw"
           className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
@@ -386,7 +386,7 @@ function QuoteCard({ item, active, onClick }: { item: TestimonialItem; active: b
 
       <figcaption className="mt-auto flex min-w-0 items-center gap-3 border-t border-navy-900/10 pt-4">
         <span className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-purple/10 text-[13px] font-bold text-brand-purple sm:size-11">
-          {item.photo ? <Image src={item.photo} alt="" fill sizes="44px" className="object-cover" /> : initials(item.name)}
+          {item.photo ? <Image src={item.photo} alt={item.name ? `Photo of ${item.name}` : "Upayon Holdings client"} fill sizes="44px" className="object-cover" /> : initials(item.name)}
         </span>
         <span className="min-w-0">
           <span className="block truncate text-[15px] font-extrabold text-navy-900 sm:text-[16px]">{item.name}</span>

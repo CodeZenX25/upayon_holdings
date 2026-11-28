@@ -35,7 +35,7 @@ export function BlogPreview({ posts }: { posts: PublicBlogPost[] }) {
               <div className="relative h-[260px] overflow-hidden rounded-[26px]">
                 <Image
                   src={post.coverImage}
-                  alt=""
+                  alt={post.title}
                   fill
                   sizes="(min-width: 768px) 33vw, 100vw"
                   className="object-cover transition duration-[1.2s] ease-out group-hover:scale-110"

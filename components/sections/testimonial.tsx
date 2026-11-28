@@ -197,7 +197,7 @@ export function Testimonial({ items }: { items: TestimonialItem[] }) {
             data-ts-fade
             className="max-w-xl border-l-2 border-brand-purple pl-5 text-[16px] leading-[1.75] text-slate-600 sm:pl-6 sm:text-[18px] lg:col-span-4 lg:mb-3"
           >
-            Hear directly from the families who trusted Upayon Holdings Ltd.
+            Hear directly from the families who trusted Upayon Holdings.
           </p>
         </div>
       </div>

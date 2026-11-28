@@ -12,9 +12,10 @@ import { TeamSection } from "@/components/sections/team-section";
 import { getTeam } from "@/lib/team";
 
 export const metadata: Metadata = {
-  title: "About Us | Upayon Holdings",
+  title: "About Us — Real Estate Company in Dhaka",
   description:
-    "Learn about Upayon Holdings and our considered approach to residential real estate in Dhaka.",
+    "Meet Upayon Holdings, a Dhaka real estate developer offering land share, flat share and apartments, led by an experienced leadership team in Mirpur DOHS.",
+  alternates: { canonical: "/about" },
 };
 
 const principles = [

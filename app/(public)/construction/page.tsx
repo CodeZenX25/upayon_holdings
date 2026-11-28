@@ -7,8 +7,10 @@ import { constructionStatusLabel, getConstructions } from "@/lib/constructions";
 import type { ConstructionStatus } from "@/models";
 
 export const metadata: Metadata = {
-  title: "Construction | Upayon Holdings",
-  description: "Buildings constructed by Upayon Holdings across Dhaka — ongoing, upcoming and completed.",
+  title: "Building Construction Company in Dhaka",
+  description:
+    "Ongoing, upcoming and completed building construction projects by Upayon Holdings across Dhaka — residential and commercial, from foundation to handover.",
+  alternates: { canonical: "/construction" },
 };
 
 const statuses = Object.keys(constructionStatusLabel) as ConstructionStatus[];

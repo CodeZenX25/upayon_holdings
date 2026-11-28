@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { canOptimizeImage, optimizedVideoUrl, videoPosterUrl } from "@/lib/media-url";
 import { ArrowRight } from "lucide-react";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
@@ -135,19 +137,24 @@ export function BannerHero({
       style={{ backgroundColor }}
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div data-banner-media className="size-full will-change-transform">
+        <div data-banner-media className="relative size-full will-change-transform">
           {isVideo ? (
             <video
-              src={image}
+              src={optimizedVideoUrl(image)}
+              poster={videoPosterUrl(image)}
               autoPlay
               loop
               muted
               playsInline
+              preload="auto"
               className="size-full object-cover"
             />
+          ) : canOptimizeImage(image) ? (
+            // The banner is the largest thing on screen — load it first, resized and compressed.
+            <Image src={image} alt="" fill priority sizes="100vw" quality={70} className="object-cover" />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="" className="size-full object-cover" />
+            <img src={image} alt="" fetchPriority="high" decoding="async" className="size-full object-cover" />
           )}
         </div>
         <div className="absolute inset-0 bg-black/45" />

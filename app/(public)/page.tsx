@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ScrollStack } from "@/components/motion/scroll-stack";
 import { AboutIntro } from "@/components/sections/about-intro";
@@ -15,6 +16,11 @@ import { getProjects } from "@/lib/projects";
 import { getActiveTestimonials } from "@/lib/testimonials";
 import { blogPosts, galleryItems } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  // Uses the default (keyword-rich) title from the root layout.
+  alternates: { canonical: "/" },
+};
 
 /** One full-width layer of the stacked scroll; `bg` is the section colour. */
 function Panel({ children, bg, first = false }: { children: ReactNode; bg: string; first?: boolean }) {
@@ -41,10 +47,10 @@ export default async function HomePage() {
         <AboutIntro />
       </Panel>
       <Panel bg="bg-paper">
-        <DesignShowcase />
+        <LatestProjects projects={latestProjects} />
       </Panel>
       <Panel bg="bg-paper">
-        <LatestProjects projects={latestProjects} />
+        <DesignShowcase />
       </Panel>
       <Panel bg="bg-paper">
         <Features />

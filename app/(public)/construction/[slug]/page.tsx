@@ -31,10 +31,15 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const item = await getConstructionBySlug(slug);
-  if (!item) return { title: "Construction | Upayon Holdings" };
+  if (!item) return { title: "Construction not found", robots: { index: false } };
+  const description =
+    item.description.slice(0, 155) ||
+    `${item.title} — ${item.buildingHeight ? `${item.buildingHeight} ` : ""}building construction by Upayon Holdings in ${item.location}, Dhaka.`;
   return {
-    title: `${item.title} | Construction | Upayon Holdings`,
-    description: item.description.slice(0, 160) || `${item.title} — ${item.location}`,
+    title: `${item.title} — Construction in ${item.location}`,
+    description,
+    alternates: { canonical: `/construction/${item.slug}` },
+    openGraph: { title: item.title, description, images: [item.coverImage] },
   };
 }
 

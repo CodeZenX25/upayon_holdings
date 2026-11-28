@@ -122,7 +122,7 @@ export function SiteFooter() {
 
       <div className="relative border-t border-navy-900/10">
         <div className="mx-auto flex max-w-[1240px] flex-col gap-2 px-5 py-6 text-[13.5px] text-slate-500 md:flex-row md:items-center md:justify-between md:px-8">
-          <p>© {new Date().getFullYear()} Upayon Holdings Ltd. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Upayon Holdings. All rights reserved.</p>
           <p>Member of REHAB · Approved by RAJUK · Dhaka, Bangladesh</p>
         </div>
       </div>

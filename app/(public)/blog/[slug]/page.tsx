@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { JsonLd } from "@/components/json-ld";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Clock3 } from "lucide-react";
 import { BlogCard } from "@/components/blog-card";
@@ -20,8 +23,20 @@ export async function generateMetadata({
   const post = blogPosts.find((item) => item.slug === slug);
 
   return post
-    ? { title: `${post.title} | Upayon Holdings`, description: post.excerpt }
-    : { title: "Story not found | Upayon Holdings" };
+    ? {
+        title: post.title,
+        description: post.excerpt,
+        alternates: { canonical: `/blog/${post.slug}` },
+        openGraph: {
+          type: "article",
+          url: `/blog/${post.slug}`,
+          title: post.title,
+          description: post.excerpt,
+          images: [{ url: post.coverImage, alt: post.title }],
+        },
+        twitter: { card: "summary_large_image", title: post.title, description: post.excerpt, images: [post.coverImage] },
+      }
+    : { title: "Story not found", robots: { index: false } };
 }
 
 export default async function BlogDetailPage({
@@ -35,13 +50,17 @@ export default async function BlogDetailPage({
 
   return (
     <>
+      <JsonLd data={articleJsonLd(post)} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Blog", path: "/blog" },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ])}
+      />
       <section className="article-hero">
-        <div
-          className="article-hero-image"
-          style={{ backgroundImage: `url("${post.coverImage}")` }}
-          role="img"
-          aria-label="Illustrative residential interior"
-        />
+        <div className="article-hero-image">
+          <Image src={post.coverImage} alt={post.title} fill priority sizes="100vw" className="object-cover" />
+        </div>
         <div className="article-hero-overlay" />
         <div className="page-container article-hero-content">
           <Link className="back-link" href="/blog">

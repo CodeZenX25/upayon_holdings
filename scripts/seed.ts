@@ -163,7 +163,7 @@ async function seed(): Promise<void> {
         {
           title: "Building Spaces That Inspire",
           subtitle:
-            "Upayon Holdings Ltd. is a trusted real estate developer in Bangladesh, delivering premium residential and commercial projects with exceptional craftsmanship, innovative design, and on-time completion.",
+            "Upayon Holdings is a trusted real estate developer in Bangladesh, delivering premium residential and commercial projects with exceptional craftsmanship, innovative design, and on-time completion.",
           image: sampleImage,
           mediaType: "image",
           buttonText: "Explore Projects",

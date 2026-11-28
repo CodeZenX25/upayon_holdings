@@ -5,7 +5,7 @@ import { getCurrentAdmin } from "@/lib/auth/server";
 import { AdminShell } from "@/components/admin/admin-shell";
 
 export const metadata: Metadata = {
-  title: "Admin Panel · Upayon Holdings",
+  title: { absolute: "Admin Panel · Upayon Holdings" },
   robots: { index: false, follow: false },
 };
 

@@ -4,7 +4,7 @@
  * (later these can come from the SiteSettings model).
  */
 export const siteConfig = {
-  name: "Upayon Holdings Ltd.",
+  name: "Upayon Holdings",
   phone: "+880 1339336953",
   phoneHref: "tel:+8801339336953",
   email: "info@upayonholdings.com",

@@ -6,9 +6,10 @@ import { ProjectFilters } from "@/components/project-filters";
 import { getProjects } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  title: "Our Projects | Upayon Holdings",
+  title: "Flats & Land Share Projects for Sale in Dhaka",
   description:
-    "Explore ongoing, upcoming, and completed land-share and flat-share projects from Upayon Holdings in Dhaka.",
+    "Browse ongoing, upcoming and completed Upayon projects — apartments for sale, flat share and land share in Mirpur DOHS, Bashundhara, Uttara and Purbachal, with instalment plans.",
+  alternates: { canonical: "/projects" },
 };
 
 const filters: { label: string; value: string }[] = [

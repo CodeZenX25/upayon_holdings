@@ -8,9 +8,10 @@ import {
 import { ContactForm } from "@/components/contact-form";
 
 export const metadata: Metadata = {
-  title: "Contact | Upayon Holdings",
+  title: "Contact Us — Visit Our Mirpur DOHS Office",
   description:
-    "Talk with Upayon Holdings about land-share and flat-share opportunities in Dhaka.",
+    "Call +880 1339336953 or visit Upayon Holdings at House-342, Road-5, Avenue 3, Mirpur DOHS, Dhaka 1216 to discuss land share, flat share and apartments for sale.",
+  alternates: { canonical: "/contact" },
 };
 
 const contactItems = [

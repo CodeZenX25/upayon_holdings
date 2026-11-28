@@ -22,6 +22,17 @@ land-share and flat-share opportunities.
 
 Use `npm run build` for a production build and `npm run lint` for ESLint.
 
+## SEO settings (production)
+
+- `NEXT_PUBLIC_SITE_URL` — the live domain, e.g. `https://upayonholdings.com`.
+  Canonical links, `sitemap.xml`, `robots.txt`, social previews and structured
+  data all use it. Without it they point at `localhost`.
+- `GOOGLE_SITE_VERIFICATION` (optional) — the code from Google Search Console's
+  "HTML tag" verification method.
+- `BING_SITE_VERIFICATION` (optional) — the code from Bing Webmaster Tools.
+
+After deploying, submit `https://<domain>/sitemap.xml` in Google Search Console.
+
 ## Public pages
 
 - `/` — Homepage and project search

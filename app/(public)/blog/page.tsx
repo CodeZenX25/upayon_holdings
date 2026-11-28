@@ -5,9 +5,10 @@ import { BlogCard } from "@/components/blog-card";
 import { blogPosts } from "@/lib/public-data";
 
 export const metadata: Metadata = {
-  title: "Insights & Guides | Upayon Holdings",
+  title: "Property Guides & Real Estate Insights for Dhaka",
   description:
-    "Ideas and practical guides to help you make more informed property decisions in Dhaka.",
+    "Practical guides on buying a flat in Dhaka, land share vs flat share, choosing a neighbourhood and making confident property decisions.",
+  alternates: { canonical: "/blog" },
 };
 
 export default function BlogPage() {

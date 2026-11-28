@@ -69,33 +69,33 @@ interface BrandLogoProps {
   className?: string;
 }
 
-/** Full logo: mark + "UPAYON / HOLDINGS LTD." wordmark (Poppins, like the artwork). */
+/** Full logo: mark + "UPAYON / HOLDINGS" wordmark (Poppins, like the artwork). */
 export function BrandLogo({ light = false, size = "md", className }: BrandLogoProps) {
   return (
     <span
       className={cn("inline-flex items-center gap-[0.36em] font-sans leading-none", sizes[size], className)}
-      aria-label="Upayon Holdings Ltd."
+      aria-label="Upayon Holdings"
       role="img"
     >
       <BrandMark className="h-[1.62em] w-auto shrink-0" />
       {/* Offsets below are measured against the logo artwork (Poppins has a
           tall line box, hence the negative margin). */}
-      <span aria-hidden="true" className="relative top-[0.07em] flex flex-col">
+      <span aria-hidden="true" className="relative top-[0.07em] inline-flex flex-col">
         <span
           className="text-[1em] font-bold tracking-[0.005em]"
           style={{ color: light ? "#ffffff" : brandColors.purple }}
         >
           UPAYON
         </span>
+        {/* Letters are spread edge-to-edge so "HOLDINGS" spans exactly the
+            width of "UPAYON", giving the wordmark a clean block shape. */}
         <span
-          className="-mt-[1.5em] whitespace-nowrap text-[0.4em] font-medium tracking-[0.24em]"
+          className="-mt-[1.35em] flex w-full justify-between pl-[0.1em] pr-[0.05em] text-[0.4em] font-semibold"
           style={{ color: light ? "rgba(255,255,255,0.85)" : brandColors.navy }}
         >
-          HOLDINGS LTD
-          <span
-            className="ml-[0.08em] inline-block size-[0.42em] rounded-full align-baseline"
-            style={{ backgroundColor: brandColors.pink }}
-          />
+          {"HOLDINGS".split("").map((letter, i) => (
+            <span key={i}>{letter}</span>
+          ))}
         </span>
       </span>
     </span>

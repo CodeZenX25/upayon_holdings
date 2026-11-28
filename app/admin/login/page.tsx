@@ -14,7 +14,7 @@ import { safeAdminRedirect } from "@/lib/auth/redirect";
 import { getCurrentAdmin } from "@/lib/auth/server";
 
 export const metadata: Metadata = {
-  title: "Admin sign in · Upayon Holdings",
+  title: { absolute: "Admin sign in · Upayon Holdings" },
   robots: { index: false, follow: false },
 };
 

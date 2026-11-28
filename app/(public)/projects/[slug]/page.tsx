@@ -37,6 +37,8 @@ import {
   statusLabel,
 } from "@/lib/project-labels";
 import { brochureDownloadHref, brochureFileName, isUploadedBrochure } from "@/lib/brochure";
+import { JsonLd } from "@/components/json-ld";
+import { breadcrumbJsonLd, projectJsonLd } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -52,12 +54,34 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: ProjectDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug);
-  if (!project) return { title: "Project not found | Upayon Holdings" };
+  if (!project) return { title: "Project not found", robots: { index: false } };
 
+  const kind = projectKind(project);
+  const title = project.seo.metaTitle || `${project.title} — ${kind} in ${project.location}`;
+  const description = project.seo.metaDescription || project.shortDescription;
+  const imageAlt = `${project.title} — ${kind} in ${project.location}`;
   return {
-    title: project.seo.metaTitle || `${project.title} | Upayon Holdings`,
-    description: project.seo.metaDescription || project.shortDescription,
-    openGraph: { images: [project.coverImage] },
+    // An admin-written meta title is used as-is (no "| Upayon Holdings" suffix added twice).
+    title: project.seo.metaTitle ? { absolute: project.seo.metaTitle } : title,
+    description,
+    keywords: [
+      project.title,
+      `${project.title} ${project.location}`,
+      `${kind} ${project.location}`,
+      project.type === "land-share" ? "land share Dhaka" : "flat for sale in Dhaka",
+      project.type === "land-share" ? "plot for sale Dhaka" : "apartment for sale in Dhaka",
+      `${statusLabel[project.status]} project Dhaka`,
+      "Upayon Holdings",
+    ],
+    alternates: { canonical: `/projects/${project.slug}` },
+    openGraph: {
+      type: "website",
+      url: `/projects/${project.slug}`,
+      title,
+      description,
+      images: [{ url: project.coverImage, alt: imageAlt }],
+    },
+    twitter: { card: "summary_large_image", title, description, images: [project.coverImage] },
   };
 }
 
@@ -74,6 +98,10 @@ function isSafeMapEmbed(url?: string): url is string {
   } catch {
     return false;
   }
+}
+
+function projectKind(project: ProjectView) {
+  return project.type === "land-share" ? "Land Share" : "Flats for Sale";
 }
 
 function areaLabel(project: ProjectView) {
@@ -155,6 +183,19 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
   return (
     <ScrollStack>
+      <JsonLd
+        data={projectJsonLd({
+          ...project,
+          description: project.seo.metaDescription || project.shortDescription,
+          images: galleryImages.slice(0, 6),
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Projects", path: "/projects" },
+          { name: project.title, path: `/projects/${project.slug}` },
+        ])}
+      />
       <div className="mx-auto max-w-[1240px] px-5 pb-24 pt-10 md:px-8 md:pt-14">
         <header>
           <Link
@@ -207,7 +248,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               <div data-parallax className="absolute -inset-y-[10%] inset-x-0">
                 <Image
                   src={project.coverImage}
-                  alt={project.title}
+                  alt={`${project.title} — ${projectKind(project)} in ${project.location}`}
                   fill
                   priority
                   sizes="(min-width: 1024px) 800px, 100vw"

@@ -3,9 +3,10 @@ import Link from "next/link";
 import { galleryItems } from "@/lib/public-data";
 
 export const metadata: Metadata = {
-  title: "Gallery | Upayon Holdings",
+  title: "Gallery — Apartments, Interiors & Projects in Dhaka",
   description:
-    "Explore architectural inspiration and visual stories from Upayon Holdings.",
+    "Photos of Upayon Holdings residential buildings, apartment interiors, rooftop gardens and construction progress across Dhaka.",
+  alternates: { canonical: "/gallery" },
 };
 
 const categories = [

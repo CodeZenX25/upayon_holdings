@@ -13,7 +13,7 @@ interface ProjectEnquiryFormProps {
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind: "error"; message: string };
 
 const fieldClass =
-  "w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-[16px] text-navy-900 placeholder:text-slate-400 transition focus:border-brand-purple focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-purple/10";
+  "w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-[16px] text-navy-900 placeholder:text-slate-500 transition focus:border-brand-purple focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-purple/10";
 
 export function ProjectEnquiryForm({ projectId, projectTitle, inquiryType }: ProjectEnquiryFormProps) {
   const [status, setStatus] = useState<Status>({ kind: "idle" });

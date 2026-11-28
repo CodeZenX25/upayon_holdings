@@ -8,7 +8,7 @@ type Status = "idle" | "sending" | "success" | "error";
 
 // Light theme: boxed fields on white, logo-purple focus ring (no gradients).
 const fieldClass =
-  "mt-2 w-full rounded-xl border border-navy-900/10 bg-paper px-4 py-3.5 text-[16px] text-navy-900 placeholder:text-slate-400 outline-none transition focus:border-brand-purple focus:bg-white focus:ring-4 focus:ring-brand-purple/15";
+  "mt-2 w-full rounded-xl border border-navy-900/10 bg-paper px-4 py-3.5 text-[16px] text-navy-900 placeholder:text-slate-500 outline-none transition focus:border-brand-purple focus:bg-white focus:ring-4 focus:ring-brand-purple/15";
 const labelClass = "block text-[12px] font-bold uppercase tracking-[0.18em] text-slate-600";
 
 export function EnquiryForm() {

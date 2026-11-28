@@ -465,7 +465,7 @@ function StepItem({
             "grid size-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors duration-300 sm:size-9",
             isActive && "bg-brand-purple text-white",
             isDone && "bg-brand-purple/15 text-brand-purple",
-            !isActive && !isDone && "bg-navy-900/[0.06] text-slate-400",
+            !isActive && !isDone && "bg-navy-900/[0.06] text-slate-500",
           )}
         >
           {index + 1}
@@ -475,7 +475,7 @@ function StepItem({
             className={cn(
               "block font-bold leading-snug transition-colors duration-300",
               compact ? "text-[14px] sm:text-[16px]" : "text-[17px]",
-              isActive || isDone ? "text-navy-900" : "text-slate-400",
+              isActive || isDone ? "text-navy-900" : "text-slate-500",
             )}
           >
             {step.title}

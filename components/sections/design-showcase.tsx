@@ -419,7 +419,7 @@ export function DesignShowcase() {
                       <span
                         className={cn(
                           "w-7 shrink-0 pt-1 font-serif text-[15px] italic tabular-nums transition-colors duration-300 sm:text-[16px]",
-                          isActive ? "text-brand-purple" : "text-slate-400",
+                          isActive ? "text-brand-purple" : "text-slate-500",
                         )}
                       >
                         {pad(i + 1)}
@@ -428,7 +428,7 @@ export function DesignShowcase() {
                         <span
                           className={cn(
                             "block text-[19px] font-bold leading-snug tracking-tight transition-colors duration-300 sm:text-[22px]",
-                            isActive ? "text-navy-900" : "text-slate-400 group-hover:text-navy-900",
+                            isActive ? "text-navy-900" : "text-slate-500 group-hover:text-navy-900",
                           )}
                         >
                           {v.title}

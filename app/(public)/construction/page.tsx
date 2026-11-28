@@ -105,7 +105,7 @@ export default async function ConstructionPage({ searchParams }: ConstructionPag
               >
                 <label className="relative block sm:col-span-2 lg:col-span-1">
                   <span className="sr-only">Search</span>
-                  <Search className="absolute left-5 top-1/2 size-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                  <Search className="absolute left-5 top-1/2 size-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                   <input name="q" defaultValue={q} placeholder="Type to search" className={`${fieldClass} pl-12`} />
                 </label>
                 <label className="relative block">

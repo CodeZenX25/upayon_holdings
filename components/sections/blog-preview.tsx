@@ -47,7 +47,7 @@ export function BlogPreview({ posts }: { posts: PublicBlogPost[] }) {
                   <ArrowUpRight className="size-5" aria-hidden="true" />
                 </span>
               </div>
-              <p className="mt-6 flex items-center gap-2 text-[13px] font-medium text-slate-400">
+              <p className="mt-6 flex items-center gap-2 text-[13px] font-medium text-slate-500">
                 <CalendarDays className="size-4" aria-hidden="true" />
                 {post.publishedAt}
               </p>

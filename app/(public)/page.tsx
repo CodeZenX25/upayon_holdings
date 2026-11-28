@@ -7,6 +7,7 @@ import { BlogPreview } from "@/components/sections/blog-preview";
 import { DesignShowcase } from "@/components/sections/design-showcase";
 import { Features } from "@/components/sections/features";
 import { GalleryShowcase } from "@/components/sections/gallery-showcase";
+import { HomeFaq } from "@/components/sections/home-faq";
 import { LandToLandmark } from "@/components/sections/land-to-landmark";
 import { LatestProjects } from "@/components/sections/latest-projects";
 import { LocationEnquiry } from "@/components/sections/location-enquiry";
@@ -66,6 +67,9 @@ export default async function HomePage() {
       </Panel>
       <Panel bg="bg-white">
         <BlogPreview posts={blogPosts.slice(0, 3)} />
+      </Panel>
+      <Panel bg="bg-white">
+        <HomeFaq />
       </Panel>
       <Panel bg="bg-paper">
         <LocationEnquiry />

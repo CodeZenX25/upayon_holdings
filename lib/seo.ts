@@ -21,11 +21,11 @@ export const siteUrl = resolveSiteUrl().replace(/\/+$/, "");
 export const seo = {
   name: "Upayon Holdings",
   shortName: "Upayon Holdings",
-  // Kept under ~580px (Google's cut-off) and without repeated words.
-  defaultTitle: "Upayon Holdings | Flats & Land Share in Dhaka",
-  // Kept under ~155 characters so Google shows it in full.
+  // 50–60 characters, under Google's ~580px cut-off, no repeated words.
+  defaultTitle: "Upayon Holdings | Flats & Land Share for Sale in Dhaka",
+  // 140–160 characters so Google shows it in full without truncating.
   description:
-    "Buy flats and land share in Dhaka with Upayon Holdings. Real estate projects in Mirpur DOHS, Bashundhara and Uttara with easy instalments.",
+    "Buy flats and land share in Dhaka with Upayon Holdings. Trusted real estate projects in Mirpur DOHS, Bashundhara and Uttara with easy instalments.",
   /** Default social preview image (1600×1600 render of an Upayon building). */
   ogImage: "/images/showcase/front-view.jpg",
   /**
